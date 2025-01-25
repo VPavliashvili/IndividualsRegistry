@@ -1,0 +1,6 @@
+@IndividualsRegistry.Presentation.Api_HostAddress = http://localhost:5207
+
+GET {{IndividualsRegistry.Presentation.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
