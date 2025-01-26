@@ -8,12 +8,16 @@ public interface IIndividualsRepository
 {
     Task AddIndividual(IndividualEntity individualEntity);
     Task UpdateIndividual(IndividualEntity updatedEntity);
-    Task SetPicture(int individualId, byte[] image, string contentType);
+    Task SetPicture(int individualId, byte[] image);
     Task RemoveIndividual(int individualId);
 
-    Task<IEnumerable<IndividualEntity>> GetAllIndividuals(int pageSize, int pageNumber, IndividualFilter? filter = null);
+    Task<IEnumerable<IndividualEntity>> GetAllIndividuals(IIndividualSpecification? filter = null);
     Task<IndividualEntity?> GetIndividual(int individualId);
 
-    Task AddRelatedIndividual(int individualId, IndividualEntity relatedIndividual, RelationType relationType);
+    Task AddRelatedIndividual(
+        int individualId,
+        IndividualEntity relatedIndividual,
+        RelationType relationType
+    );
     Task RemoveRelatedIndividual(int individualId, int relatedIndividualId);
 }

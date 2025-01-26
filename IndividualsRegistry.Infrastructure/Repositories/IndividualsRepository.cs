@@ -30,14 +30,34 @@ public class IndividualsRepository : IIndividualsRepository
         await _dbContext.Individuals.AddAsync(individualEntity);
     }
 
-    public Task AddRelatedIndividual(int individualId, IndividualEntity relatedIndividual, RelationType relationType)
+    public Task AddRelatedIndividual(
+        int individualId,
+        IndividualEntity relatedIndividual,
+        RelationType relationType
+    )
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<IndividualEntity>> GetAllIndividuals(int pageSize, int pageNumber, IndividualFilter? filter = null)
+    public async Task<IEnumerable<IndividualEntity>> GetAllIndividuals(
+        IIndividualSpecification? filter = null
+    )
     {
         throw new NotImplementedException();
+        if (filter is null)
+        {
+            return await _dbContext.Individuals.ToListAsync();
+        }
+
+        var pageSize = filter.PageSize ?? int.MaxValue;
+        var pageNumber = filter.PageNumber ?? 1;
+        var result = await _dbContext
+            .Individuals.OrderBy(b => b.Id)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return result;
     }
 
     public Task<IndividualEntity?> GetIndividual(int individualId)
@@ -45,9 +65,12 @@ public class IndividualsRepository : IIndividualsRepository
         throw new NotImplementedException();
     }
 
-    public Task RemoveIndividual(int individualId)
+    public async Task RemoveIndividual(int individualId)
     {
-        throw new NotImplementedException();
+        var existing =
+            await _dbContext.Individuals.FirstOrDefaultAsync(x => x.Id == individualId)
+            ?? throw new DoesNotExistException();
+        _dbContext.Individuals.Remove(existing);
     }
 
     public Task RemoveRelatedIndividual(int individualId, int relatedIndividualId)
@@ -55,13 +78,22 @@ public class IndividualsRepository : IIndividualsRepository
         throw new NotImplementedException();
     }
 
-    public Task SetPicture(int individualId, byte[] image, string contentType)
+    public async Task SetPicture(int individualId, byte[] image)
     {
-        throw new NotImplementedException();
+        var existing =
+            await _dbContext.Individuals.FirstOrDefaultAsync(x => x.Id == individualId)
+            ?? throw new DoesNotExistException();
+        existing.Picture = image;
+        _dbContext.Entry(existing).Property(x => x.Picture).IsModified = true;
     }
 
-    public Task UpdateIndividual(IndividualEntity updatedEntity)
+    public async Task UpdateIndividual(IndividualEntity updatedEntity)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(updatedEntity);
+
+        var existing =
+            await _dbContext.Individuals.FirstOrDefaultAsync(x => x.Id == updatedEntity.Id)
+            ?? throw new DoesNotExistException();
+        _dbContext.Entry(existing).CurrentValues.SetValues(updatedEntity);
     }
 }
