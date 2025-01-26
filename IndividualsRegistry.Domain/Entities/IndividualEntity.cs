@@ -24,7 +24,7 @@ public class IndividualEntity
     [Required]
     public required DateOnly BirthDate { get; set; }
 
-    public int CityId { get; set; }
+    public int? CityId { get; set; }
     public virtual CityEntity? City { get; set; }
     public ICollection<PhoneNumberEntity>? PhoneNumbers { get; set; }
     public byte[]? Picture { get; set; }

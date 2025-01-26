@@ -15,6 +15,8 @@ public class IndividualsDbContext : DbContext
     public IndividualsDbContext(DbContextOptions<IndividualsDbContext> options)
         : base(options) { }
 
+    public IndividualsDbContext() { }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<IndividualEntity>(entity =>
@@ -72,7 +74,7 @@ public class IndividualsDbContext : DbContext
             entity
                 .Property(x => x.BirthDate)
                 .IsRequired()
-                .HasColumnType(SqlDbType.DateTime2.ToString())
+                .HasColumnType(SqlDbType.Date.ToString())
                 .HasConversion<DateOnly>();
 
             entity
@@ -101,6 +103,7 @@ public class IndividualsDbContext : DbContext
                 .HasMany(x => x.Individuals)
                 .WithOne(x => x.City)
                 .HasForeignKey(x => x.CityId)
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
 
             entity.Property(x => x.Name).IsRequired();
@@ -129,5 +132,10 @@ public class IndividualsDbContext : DbContext
                 .HasForeignKey(x => x.Individualid)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder builder)
+    {
+        builder.Properties<DateOnly>().HaveColumnType(SqlDbType.Date.ToString());
     }
 }
