@@ -1,8 +1,10 @@
 using IndividualsRegistry.Domain.Contracts;
 using IndividualsRegistry.Domain.Entities;
 using IndividualsRegistry.Domain.Enums;
+using IndividualsRegistry.Domain.Exceptions;
 using IndividualsRegistry.Domain.Specifications;
 using IndividualsRegistry.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace IndividualsRegistry.Infrastructure.Repositories;
 
@@ -17,6 +19,14 @@ public class IndividualsRepository : IIndividualsRepository
 
     public async Task AddIndividual(IndividualEntity individualEntity)
     {
+        ArgumentNullException.ThrowIfNull(individualEntity);
+
+        var alreadyExists = await _dbContext.Individuals.AnyAsync(x => x.Id == individualEntity.Id);
+        if (alreadyExists)
+        {
+            throw new AlreadyExistsException();
+        }
+
         await _dbContext.Individuals.AddAsync(individualEntity);
     }
 
