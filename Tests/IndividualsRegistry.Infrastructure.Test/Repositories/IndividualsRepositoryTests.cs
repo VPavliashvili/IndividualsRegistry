@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace IndividualsRegistry.Infrastructure.Test.Repositories;
 
-public class IndividualsRepositoryTest
+public class IndividualsRepositoryTests
 {
     private readonly ITestOutputHelper _output;
 
@@ -20,7 +20,7 @@ public class IndividualsRepositoryTest
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
-    public IndividualsRepositoryTest(ITestOutputHelper output)
+    public IndividualsRepositoryTests(ITestOutputHelper output)
     {
         _output = output;
     }
