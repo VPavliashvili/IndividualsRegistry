@@ -11,7 +11,7 @@ public interface IIndividualsRepository
     Task SetPicture(int individualId, byte[] image);
     Task RemoveIndividual(int individualId);
 
-    Task<IEnumerable<IndividualEntity>> GetAllIndividuals(IIndividualSpecification? filter = null);
+    Task<IEnumerable<IndividualEntity>> GetIndividuals(IIndividualSpecification? filter = null);
     Task<IndividualEntity?> GetIndividual(int individualId);
 
     Task AddRelatedIndividual(

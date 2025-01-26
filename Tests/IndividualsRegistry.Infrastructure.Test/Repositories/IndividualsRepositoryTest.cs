@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+using IndividualsRegistry.Domain.Contracts;
 using IndividualsRegistry.Domain.Entities;
 using IndividualsRegistry.Domain.Exceptions;
 using IndividualsRegistry.Domain.Specifications;
@@ -446,5 +448,197 @@ public class IndividualsRepositoryTest
         // Then
         var relations = await context.Relations.ToListAsync();
         Assert.Empty(relations);
+    }
+
+    [Fact]
+    public async Task Test_GetIndividuals_WithoutSpecification_ShouldReturnAll()
+    {
+        // Given
+        var individuals = new[]
+        {
+            new IndividualEntity
+            {
+                Id = 1,
+                Name = "john",
+                Surname = "doe",
+                PersonalId = "12345678901",
+                Gender = "man",
+                BirthDate = DateOnly.Parse("08/19/2000"),
+            },
+            new IndividualEntity
+            {
+                Id = 2,
+                Name = "bruce",
+                Surname = "wayne",
+                PersonalId = "12345678901",
+                Gender = "man",
+                BirthDate = DateOnly.Parse("08/19/2000"),
+            },
+        };
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddRangeAsync(individuals);
+        await context.SaveChangesAsync();
+
+        var sut = new IndividualsRepository(context);
+        // When
+        var result = await sut.GetIndividuals();
+
+        // Then
+        Assert.Equal(2, result.Count());
+    }
+
+    [Fact]
+    public async Task Test_GetAllIndividuals_WithPagination_ShouldReturnCorrectPage()
+    {
+        // Given
+        var entities = Enumerable
+            .Range(1, 15)
+            .Select(i => new IndividualEntity
+            {
+                Id = i,
+                Name = $"name{i}",
+                Surname = "doe",
+                PersonalId = "12345678901",
+                Gender = "man",
+                BirthDate = DateOnly.Parse("08/19/2000"),
+            });
+
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+
+        var spec = new Mock<IIndividualSpecification>();
+        spec.Setup(x => x.PageSize).Returns(5);
+        spec.Setup(x => x.PageNumber).Returns(2);
+        spec.Setup(x => x.Criteria).Returns(x => true);
+
+        var sut = new IndividualsRepository(context);
+        // When
+        var result = await sut.GetIndividuals(spec.Object);
+
+        // Then
+        Assert.Equal(5, result.Count());
+        Assert.Equal("name6", result.First().Name);
+    }
+
+    [Fact]
+    public async Task Test_GetAllIndividuals_With_Name_Criteria()
+    {
+        // Given
+        var entities = new[]
+        {
+            new IndividualEntity
+            {
+                Id = 1,
+                Name = "john",
+                Surname = "doe",
+                PersonalId = "12345678901",
+                Gender = "man",
+                BirthDate = DateOnly.Parse("08/19/2000"),
+            },
+            new IndividualEntity
+            {
+                Id = 2,
+                Name = "bruce",
+                Surname = "wayne",
+                PersonalId = "12345678901",
+                Gender = "man",
+                BirthDate = DateOnly.Parse("08/19/2000"),
+            },
+        };
+
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+
+        var spec = new Mock<IIndividualSpecification>();
+        spec.Setup(x => x.Criteria).Returns(x => x.Name == "john");
+
+        var sut = new IndividualsRepository(context);
+        // When
+        var result = await sut.GetIndividuals(spec.Object);
+
+        // Then
+        var list = result.ToList();
+        Assert.Single(list);
+        Assert.Equal("john", list[0].Name);
+        Assert.Equal("doe", list[0].Surname);
+    }
+
+    [Fact]
+    public async Task Test_GetAllIndividuals_With_Complex_Criteria()
+    {
+        // Given
+        var entities = new[]
+        {
+            new IndividualEntity
+            {
+                Id = 1,
+                Name = "john",
+                Surname = "doe",
+                PersonalId = "12345678901",
+                Gender = "man",
+                BirthDate = DateOnly.Parse("08/19/2000"),
+            },
+            new IndividualEntity
+            {
+                Id = 2,
+                Name = "bruce",
+                Surname = "wayne",
+                PersonalId = "92345678901",
+                Gender = "man",
+                BirthDate = DateOnly.Parse("08/19/2000"),
+            },
+        };
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+
+        var spec = new Mock<IIndividualSpecification>();
+        spec.Setup(x => x.Criteria)
+            .Returns(x => x.Name == "john" && x.Surname == "doe" && x.PersonalId == "12345678901");
+
+        var sut = new IndividualsRepository(context);
+        // When
+        var result = await sut.GetIndividuals(spec.Object);
+
+        // Then
+        var list = result.ToList();
+        Assert.Single(list);
+        Assert.Equal("john", list[0].Name);
+        Assert.Equal("doe", list[0].Surname);
+        Assert.Equal("12345678901", list[0].PersonalId);
+    }
+
+    [Fact]
+    public async Task Test_GetAllIndividuals_With_Empty_Result()
+    {
+        // Given
+        var individuals = new[]
+        {
+            new IndividualEntity
+            {
+                Id = 1,
+                Name = "john",
+                Surname = "doe",
+                PersonalId = "12345678901",
+                Gender = "man",
+                BirthDate = DateOnly.Parse("08/19/2000"),
+            },
+        };
+
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddRangeAsync(individuals);
+        await context.SaveChangesAsync();
+
+        var spec = new Mock<IIndividualSpecification>();
+        spec.Setup(x => x.Criteria).Returns(x => x.Name == "nonexistent");
+
+        var sut = new IndividualsRepository(context);
+        // When
+        var result = await sut.GetIndividuals(spec.Object);
+
+        // Then
+        Assert.Empty(result);
     }
 }

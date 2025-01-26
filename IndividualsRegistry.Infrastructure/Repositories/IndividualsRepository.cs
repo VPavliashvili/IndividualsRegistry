@@ -39,11 +39,10 @@ public class IndividualsRepository : IIndividualsRepository
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<IndividualEntity>> GetAllIndividuals(
+    public async Task<IEnumerable<IndividualEntity>> GetIndividuals(
         IIndividualSpecification? filter = null
     )
     {
-        throw new NotImplementedException();
         if (filter is null)
         {
             return await _dbContext.Individuals.ToListAsync();
@@ -51,12 +50,17 @@ public class IndividualsRepository : IIndividualsRepository
 
         var pageSize = filter.PageSize ?? int.MaxValue;
         var pageNumber = filter.PageNumber ?? 1;
-        var result = await _dbContext
-            .Individuals.OrderBy(b => b.Id)
+
+        var intermediary = _dbContext.Individuals.AsQueryable();
+        if (filter.Criteria is not null)
+        {
+            intermediary = intermediary.Where(filter.Criteria);
+        }
+
+        var result = await intermediary
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-
         return result;
     }
 
