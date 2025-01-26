@@ -4,7 +4,7 @@ using IndividualsRegistry.Domain.Enums;
 
 namespace IndividualsRegistry.Domain.Entities;
 
-public class PhoneNumber
+public class PhoneNumberEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -18,4 +18,6 @@ public class PhoneNumber
 
     [ForeignKey("IndividualId")]
     public int Individualid { get; set; }
+
+    public virtual IndividualEntity Individual { get; set; }
 }

@@ -35,7 +35,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
 
@@ -52,7 +52,6 @@ public class IndividualsRepositoryTest
         Assert.Equal(entity.Name, entry.Name);
         Assert.Equal(entity.BirthDate, entry.BirthDate);
         Assert.Equal(entity.Gender, entry.Gender);
-        Assert.Equal(entity.City, entry.City);
     }
 
     [Fact]
@@ -81,7 +80,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
 
@@ -108,7 +107,7 @@ public class IndividualsRepositoryTest
             Name = "badname",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         var context = new Mock<IndividualsDbContext>(DbContextOptions);
@@ -134,7 +133,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         using var context = new IndividualsDbContext(DbContextOptions);
@@ -147,7 +146,7 @@ public class IndividualsRepositoryTest
             Name = "newName",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
 
@@ -173,7 +172,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         var context = new Mock<IndividualsDbContext>(DbContextOptions);
@@ -210,7 +209,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         var entity2 = new IndividualEntity
@@ -219,7 +218,7 @@ public class IndividualsRepositoryTest
             Name = "bruce",
             Surname = "wayne",
             PersonalId = "10987654321",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         using var context = new IndividualsDbContext(DbContextOptions);
@@ -232,7 +231,7 @@ public class IndividualsRepositoryTest
             Name = "peter",
             Surname = "parker",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
 
@@ -258,7 +257,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         using var context = new IndividualsDbContext(DbContextOptions);
@@ -304,7 +303,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
             Picture = imageBytes,
         };
@@ -335,7 +334,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         using var context = new IndividualsDbContext(DbContextOptions);
@@ -377,7 +376,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         var entity2 = new IndividualEntity
@@ -386,7 +385,7 @@ public class IndividualsRepositoryTest
             Name = "bruce",
             Surname = "wayne",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         using var context = new IndividualsDbContext(DbContextOptions);
@@ -413,7 +412,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         var related = new IndividualEntity
@@ -422,7 +421,7 @@ public class IndividualsRepositoryTest
             Name = "bruce",
             Surname = "wayne",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
 
@@ -460,7 +459,7 @@ public class IndividualsRepositoryTest
                 Name = "john",
                 Surname = "doe",
                 PersonalId = "12345678901",
-                Gender = "man",
+                Gender = Gender.Male,
                 BirthDate = DateOnly.Parse("08/19/2000"),
             },
             new IndividualEntity
@@ -469,7 +468,7 @@ public class IndividualsRepositoryTest
                 Name = "bruce",
                 Surname = "wayne",
                 PersonalId = "12345678901",
-                Gender = "man",
+                Gender = Gender.Male,
                 BirthDate = DateOnly.Parse("08/19/2000"),
             },
         };
@@ -497,7 +496,7 @@ public class IndividualsRepositoryTest
                 Name = $"name{i}",
                 Surname = "doe",
                 PersonalId = "12345678901",
-                Gender = "man",
+                Gender = Gender.Male,
                 BirthDate = DateOnly.Parse("08/19/2000"),
             });
 
@@ -531,7 +530,7 @@ public class IndividualsRepositoryTest
                 Name = "john",
                 Surname = "doe",
                 PersonalId = "12345678901",
-                Gender = "man",
+                Gender = Gender.Male,
                 BirthDate = DateOnly.Parse("08/19/2000"),
             },
             new IndividualEntity
@@ -540,7 +539,7 @@ public class IndividualsRepositoryTest
                 Name = "bruce",
                 Surname = "wayne",
                 PersonalId = "12345678901",
-                Gender = "man",
+                Gender = Gender.Male,
                 BirthDate = DateOnly.Parse("08/19/2000"),
             },
         };
@@ -575,7 +574,7 @@ public class IndividualsRepositoryTest
                 Name = "john",
                 Surname = "doe",
                 PersonalId = "12345678901",
-                Gender = "man",
+                Gender = Gender.Male,
                 BirthDate = DateOnly.Parse("08/19/2000"),
             },
             new IndividualEntity
@@ -584,7 +583,7 @@ public class IndividualsRepositoryTest
                 Name = "bruce",
                 Surname = "wayne",
                 PersonalId = "92345678901",
-                Gender = "man",
+                Gender = Gender.Male,
                 BirthDate = DateOnly.Parse("08/19/2000"),
             },
         };
@@ -620,7 +619,7 @@ public class IndividualsRepositoryTest
                 Name = "john",
                 Surname = "doe",
                 PersonalId = "12345678901",
-                Gender = "man",
+                Gender = Gender.Male,
                 BirthDate = DateOnly.Parse("08/19/2000"),
             },
         };
@@ -650,7 +649,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
 
@@ -696,7 +695,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
             RelatedIndividuals =
             [
@@ -706,7 +705,7 @@ public class IndividualsRepositoryTest
                     Name = "bruce",
                     Surname = "wayne",
                     PersonalId = "92345678901",
-                    Gender = "man",
+                    Gender = Gender.Male,
                     BirthDate = DateOnly.Parse("08/19/2000"),
                 },
             ],
@@ -735,7 +734,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         var relatedEntity = new IndividualEntity
@@ -744,7 +743,7 @@ public class IndividualsRepositoryTest
             Name = "bruce",
             Surname = "wayne",
             PersonalId = "92345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
 
@@ -776,7 +775,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
 
@@ -805,7 +804,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         var nonExistentRelated = new IndividualEntity
@@ -814,7 +813,7 @@ public class IndividualsRepositoryTest
             Name = "bruce",
             Surname = "wayne",
             PersonalId = "92345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
 
@@ -843,7 +842,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
 
@@ -871,7 +870,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         var relatedIndividual = new IndividualEntity
@@ -880,7 +879,7 @@ public class IndividualsRepositoryTest
             Name = "bruce",
             Surname = "wayne",
             PersonalId = "92345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
 
@@ -910,7 +909,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         var relatedIndividual = new IndividualEntity
@@ -919,7 +918,7 @@ public class IndividualsRepositoryTest
             Name = "bruce",
             Surname = "wayne",
             PersonalId = "92345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
 
@@ -956,7 +955,7 @@ public class IndividualsRepositoryTest
             Name = "bruce",
             Surname = "wayne",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         var wrongId = 123;
@@ -985,7 +984,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         int wrongId = 123;
@@ -1014,7 +1013,7 @@ public class IndividualsRepositoryTest
             Name = "john",
             Surname = "doe",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
         var relatedIndividual = new IndividualEntity
@@ -1023,7 +1022,7 @@ public class IndividualsRepositoryTest
             Name = "bruce",
             Surname = "wayne",
             PersonalId = "12345678901",
-            Gender = "man",
+            Gender = Gender.Male,
             BirthDate = DateOnly.Parse("08/19/2000"),
         };
 

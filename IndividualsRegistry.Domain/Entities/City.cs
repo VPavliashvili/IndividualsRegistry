@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IndividualsRegistry.Domain.Entities;
 
-public class City
+public class CityEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -11,4 +11,6 @@ public class City
 
     [Required]
     public required string Name { get; set; }
+
+    public virtual ICollection<IndividualEntity> Individuals { get; set; } = [];
 }

@@ -1,4 +1,6 @@
+using System.Data;
 using IndividualsRegistry.Domain.Entities;
+using IndividualsRegistry.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace IndividualsRegistry.Infrastructure.Data;
@@ -7,6 +9,8 @@ public class IndividualsDbContext : DbContext
 {
     public virtual DbSet<IndividualEntity> Individuals { get; set; }
     public virtual DbSet<RelationEntity> Relations { get; set; }
+    public virtual DbSet<PhoneNumberEntity> PhoneNumbers { get; set; }
+    public virtual DbSet<CityEntity> Cities { get; set; }
 
     public IndividualsDbContext(DbContextOptions<IndividualsDbContext> options)
         : base(options) { }
@@ -15,7 +19,61 @@ public class IndividualsDbContext : DbContext
     {
         modelBuilder.Entity<IndividualEntity>(entity =>
         {
+            entity.ToTable(
+                nameof(Individuals),
+                tb =>
+                {
+                    tb.HasCheckConstraint("CK_Name_Length", "LEN(Name) >= 2 AND LEN(Name) <= 50");
+                    tb.HasCheckConstraint("CK_Name_Characters", "Name NOT LIKE '%[^a-zA-Zა-ჰ]%'");
+
+                    tb.HasCheckConstraint(
+                        "CK_Surname_Length",
+                        "LEN(Surname) >= 2 AND LEN(Surname) <= 50"
+                    );
+                    tb.HasCheckConstraint(
+                        "CK_Surname_Characters",
+                        "Surname NOT LIKE '%[^a-zA-Zა-ჰ]%'"
+                    );
+
+                    tb.HasCheckConstraint(
+                        "CK_Gender",
+                        $"Gender IN ('{nameof(Gender.Male)}', '{nameof(Gender.Female)}')"
+                    );
+
+                    tb.HasCheckConstraint(
+                        "CK_PersonalId",
+                        "PersonalId LIKE "
+                            + "'[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'"
+                    );
+                }
+            );
+
             entity.HasKey(x => x.Id);
+            entity
+                .Property(x => x.Id)
+                .IsRequired()
+                .HasColumnType(SqlDbType.Int.ToString())
+                .ValueGeneratedOnAdd();
+
+            entity.Property(x => x.Name).IsRequired().HasColumnType(SqlDbType.NVarChar.ToString());
+            entity
+                .Property(x => x.Surname)
+                .IsRequired()
+                .HasColumnType(SqlDbType.NVarChar.ToString());
+            entity
+                .Property(x => x.Gender)
+                .IsRequired()
+                .HasColumnType(SqlDbType.NVarChar.ToString())
+                .HasConversion<string>();
+            entity
+                .Property(x => x.PersonalId)
+                .IsRequired()
+                .HasColumnType(SqlDbType.NVarChar.ToString());
+            entity
+                .Property(x => x.BirthDate)
+                .IsRequired()
+                .HasColumnType(SqlDbType.DateTime2.ToString())
+                .HasConversion<DateOnly>();
 
             entity
                 .HasMany(e => e.RelatedIndividuals)
@@ -32,6 +90,44 @@ public class IndividualsDbContext : DbContext
                         j.Property(x => x.RelationType).IsRequired();
                     }
                 );
+        });
+
+        modelBuilder.Entity<CityEntity>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Id).ValueGeneratedOnAdd();
+
+            entity
+                .HasMany(x => x.Individuals)
+                .WithOne(x => x.City)
+                .HasForeignKey(x => x.CityId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.Property(x => x.Name).IsRequired();
+        });
+
+        modelBuilder.Entity<PhoneNumberEntity>(entity =>
+        {
+            entity.ToTable(
+                nameof(PhoneNumbers),
+                tb =>
+                    tb.HasCheckConstraint(
+                        "CK_PhoneNumberType",
+                        $"Type IN ('{nameof(PhoneNumberType.Mobile)}', '{nameof(PhoneNumberType.Office)}', '{nameof(PhoneNumberType.Home)}')"
+                    )
+            );
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Id).ValueGeneratedOnAdd();
+
+            entity.Property(x => x.Number).IsRequired().HasMaxLength(50);
+
+            entity.Property(x => x.Type).HasConversion<string>();
+
+            entity
+                .HasOne(x => x.Individual)
+                .WithMany(x => x.PhoneNumbers)
+                .HasForeignKey(x => x.Individualid)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
