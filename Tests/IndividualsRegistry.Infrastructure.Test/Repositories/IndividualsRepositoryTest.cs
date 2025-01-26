@@ -1,12 +1,10 @@
-using System.Linq.Expressions;
-using IndividualsRegistry.Domain.Contracts;
 using IndividualsRegistry.Domain.Entities;
+using IndividualsRegistry.Domain.Enums;
 using IndividualsRegistry.Domain.Exceptions;
 using IndividualsRegistry.Domain.Specifications;
 using IndividualsRegistry.Infrastructure.Data;
 using IndividualsRegistry.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Moq.EntityFrameworkCore;
 using Xunit.Abstractions;
@@ -160,7 +158,7 @@ public class IndividualsRepositoryTest
 
         // Then
         var resutl = await context.Individuals.FindAsync(1);
-        _output.WriteLine(resutl!.Name);
+
         Assert.NotNull(resutl);
         Assert.Equal("newName", resutl.Name);
     }
@@ -488,7 +486,7 @@ public class IndividualsRepositoryTest
     }
 
     [Fact]
-    public async Task Test_GetAllIndividuals_WithPagination_ShouldReturnCorrectPage()
+    public async Task Test_GetIndividuals_WithPagination_ShouldReturnCorrectPage()
     {
         // Given
         var entities = Enumerable
@@ -522,7 +520,7 @@ public class IndividualsRepositoryTest
     }
 
     [Fact]
-    public async Task Test_GetAllIndividuals_With_Name_Criteria()
+    public async Task Test_GetIndividuals_With_Name_Criteria()
     {
         // Given
         var entities = new[]
@@ -566,7 +564,7 @@ public class IndividualsRepositoryTest
     }
 
     [Fact]
-    public async Task Test_GetAllIndividuals_With_Complex_Criteria()
+    public async Task Test_GetIndividuals_With_Complex_Criteria()
     {
         // Given
         var entities = new[]
@@ -611,7 +609,7 @@ public class IndividualsRepositoryTest
     }
 
     [Fact]
-    public async Task Test_GetAllIndividuals_With_Empty_Result()
+    public async Task Test_GetIndividuals_With_Empty_Result()
     {
         // Given
         var individuals = new[]
@@ -640,5 +638,405 @@ public class IndividualsRepositoryTest
 
         // Then
         Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task Test_GetIndividual_Returns_Individual_When_Exists()
+    {
+        // Given
+        var entity = new IndividualEntity
+        {
+            Id = 1,
+            Name = "john",
+            Surname = "doe",
+            PersonalId = "12345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddAsync(entity);
+        await context.SaveChangesAsync();
+
+        var sut = new IndividualsRepository(context);
+        // When
+        var result = await sut.GetIndividual(1);
+
+        // Then
+        Assert.NotNull(result);
+        Assert.Equal("john", result.Name);
+        Assert.Equal("doe", result.Surname);
+        Assert.Equal("12345678901", result.PersonalId);
+    }
+
+    [Fact]
+    public async Task Test_GetIndividual_Returns_Null_When_Not_Exists()
+    {
+        // Given
+        var nonExistentId = 123;
+
+        var context = new Mock<IndividualsDbContext>(DbContextOptions);
+        context.Setup(x => x.Individuals).ReturnsDbSet([]);
+
+        var sut = new IndividualsRepository(context.Object);
+        // When
+        var result = await sut.GetIndividual(nonExistentId);
+
+        // Then
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task Test_GetIndividual_Includes_Related_Individuals_Data()
+    {
+        // Given
+        var entity = new IndividualEntity
+        {
+            Id = 1,
+            Name = "john",
+            Surname = "doe",
+            PersonalId = "12345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+            RelatedIndividuals =
+            [
+                new()
+                {
+                    Id = 2,
+                    Name = "bruce",
+                    Surname = "wayne",
+                    PersonalId = "92345678901",
+                    Gender = "man",
+                    BirthDate = DateOnly.Parse("08/19/2000"),
+                },
+            ],
+        };
+
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddAsync(entity);
+        await context.SaveChangesAsync();
+
+        var sut = new IndividualsRepository(context);
+        // When
+        var result = await sut.GetIndividual(1);
+
+        // Then
+        Assert.NotNull(result);
+        Assert.NotNull(result.RelatedIndividuals);
+    }
+
+    [Fact]
+    public async Task Test_AddRelatedIndividual_Successfully_Adds_Relation()
+    {
+        // Given
+        var entity = new IndividualEntity
+        {
+            Id = 1,
+            Name = "john",
+            Surname = "doe",
+            PersonalId = "12345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+        var relatedEntity = new IndividualEntity
+        {
+            Id = 2,
+            Name = "bruce",
+            Surname = "wayne",
+            PersonalId = "92345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddRangeAsync(entity, relatedEntity);
+        await context.SaveChangesAsync();
+
+        var sut = new IndividualsRepository(context);
+        // When
+        await sut.AddRelatedIndividual(1, relatedEntity, RelationType.Colleague);
+        await context.SaveChangesAsync();
+
+        // Then
+        var updatedIndividual = await context
+            .Individuals.Include(x => x.RelatedIndividuals)
+            .FirstAsync(x => x.Id == 1);
+
+        Assert.Single(updatedIndividual.RelatedIndividuals!);
+        Assert.Contains(updatedIndividual.RelatedIndividuals!, x => x.Id == 2);
+    }
+
+    [Fact]
+    public async Task Test_AddRelatedIndividual_Throws_When_Individual_Not_Found()
+    {
+        // Given
+        var relatedIndividual = new IndividualEntity
+        {
+            Id = 1,
+            Name = "john",
+            Surname = "doe",
+            PersonalId = "12345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddAsync(relatedIndividual);
+        await context.SaveChangesAsync();
+
+        var sut = new IndividualsRepository(context);
+        // When
+        var ex = await Record.ExceptionAsync(
+            async () =>
+                await sut.AddRelatedIndividual(123, relatedIndividual, RelationType.Colleague)
+        );
+
+        // Then
+        Assert.IsType<DoesNotExistException>(ex);
+    }
+
+    [Fact]
+    public async Task Test_AddRelatedIndividual_Throws_When_Related_Individual_Not_Found()
+    {
+        // Given
+        var entity = new IndividualEntity
+        {
+            Id = 1,
+            Name = "john",
+            Surname = "doe",
+            PersonalId = "12345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+        var nonExistentRelated = new IndividualEntity
+        {
+            Id = 123,
+            Name = "bruce",
+            Surname = "wayne",
+            PersonalId = "92345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddAsync(entity);
+        await context.SaveChangesAsync();
+
+        var sut = new IndividualsRepository(context);
+        // When
+        var ex = await Record.ExceptionAsync(
+            async () =>
+                await sut.AddRelatedIndividual(1, nonExistentRelated, RelationType.Colleague)
+        );
+
+        // Then
+        Assert.IsType<DoesNotExistException>(ex);
+    }
+
+    [Fact]
+    public async Task Test_AddRelatedIndividual_Prevents_Self_Relation()
+    {
+        // Given
+        var individual = new IndividualEntity
+        {
+            Id = 1,
+            Name = "john",
+            Surname = "doe",
+            PersonalId = "12345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddAsync(individual);
+        await context.SaveChangesAsync();
+
+        var sut = new IndividualsRepository(context);
+        // When
+        var ex = await Record.ExceptionAsync(
+            async () => await sut.AddRelatedIndividual(1, individual, RelationType.Colleague)
+        );
+
+        // Then
+        Assert.IsType<InvalidOperationException>(ex);
+    }
+
+    [Fact]
+    public async Task Test_AddRelatedIndividual_Throws_When_Relation_Already_Exists()
+    {
+        // Given
+        var individual = new IndividualEntity
+        {
+            Id = 1,
+            Name = "john",
+            Surname = "doe",
+            PersonalId = "12345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+        var relatedIndividual = new IndividualEntity
+        {
+            Id = 2,
+            Name = "bruce",
+            Surname = "wayne",
+            PersonalId = "92345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddRangeAsync(individual, relatedIndividual);
+        await context.SaveChangesAsync();
+
+        var sut = new IndividualsRepository(context);
+        await sut.AddRelatedIndividual(1, relatedIndividual, RelationType.Relative);
+        await context.SaveChangesAsync();
+        // When
+        var ex = await Record.ExceptionAsync(
+            async () => await sut.AddRelatedIndividual(1, relatedIndividual, RelationType.Colleague)
+        );
+
+        // Then
+        Assert.IsType<AlreadyExistsException>(ex);
+    }
+
+    [Fact]
+    public async Task Test_RemoveRelatedIndividual_Successfully_Removes_Relation()
+    {
+        // Given
+        var entity = new IndividualEntity
+        {
+            Id = 1,
+            Name = "john",
+            Surname = "doe",
+            PersonalId = "12345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+        var relatedIndividual = new IndividualEntity
+        {
+            Id = 2,
+            Name = "bruce",
+            Surname = "wayne",
+            PersonalId = "92345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddRangeAsync(entity, relatedIndividual);
+        await context.SaveChangesAsync();
+
+        var relation = new RelationEntity
+        {
+            IndividualId = 1,
+            RelatedIndividualId = 2,
+            RelationType = RelationType.Colleague,
+        };
+        await context.Relations.AddAsync(relation);
+        await context.SaveChangesAsync();
+
+        var sut = new IndividualsRepository(context);
+        // When
+        await sut.RemoveRelatedIndividual(entity.Id, relatedIndividual.Id);
+        await context.SaveChangesAsync();
+
+        // Then
+        var relations = await context.Relations.ToListAsync();
+        Assert.Empty(relations);
+    }
+
+    [Fact]
+    public async Task Test_RemoveRelatedIndividual_Throws_When_Individual_Not_Found()
+    {
+        // Given
+        var relatedIndividual = new IndividualEntity
+        {
+            Id = 2,
+            Name = "bruce",
+            Surname = "wayne",
+            PersonalId = "12345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+        var wrongId = 123;
+
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddAsync(relatedIndividual);
+        await context.SaveChangesAsync();
+
+        var sut = new IndividualsRepository(context);
+        // When
+        var ex = await Record.ExceptionAsync(
+            async () => await sut.RemoveRelatedIndividual(wrongId, relatedIndividual.Id)
+        );
+
+        // Then
+        Assert.IsType<DoesNotExistException>(ex);
+    }
+
+    [Fact]
+    public async Task Test_RemoveRelatedIndividual_Throws_When_Related_Individual_Not_Found()
+    {
+        // Given
+        var entity = new IndividualEntity
+        {
+            Id = 1,
+            Name = "john",
+            Surname = "doe",
+            PersonalId = "12345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+        int wrongId = 123;
+
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddAsync(entity);
+        await context.SaveChangesAsync();
+
+        var sut = new IndividualsRepository(context);
+        // When
+        var ex = await Record.ExceptionAsync(
+            async () => await sut.RemoveRelatedIndividual(entity.Id, wrongId)
+        );
+
+        // Then
+        Assert.IsType<DoesNotExistException>(ex);
+    }
+
+    [Fact]
+    public async Task Test_RemoveRelatedIndividual_Throws_When_Relation_Not_Exists()
+    {
+        // Given
+        var entity = new IndividualEntity
+        {
+            Id = 1,
+            Name = "john",
+            Surname = "doe",
+            PersonalId = "12345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+        var relatedIndividual = new IndividualEntity
+        {
+            Id = 2,
+            Name = "bruce",
+            Surname = "wayne",
+            PersonalId = "12345678901",
+            Gender = "man",
+            BirthDate = DateOnly.Parse("08/19/2000"),
+        };
+
+        using var context = new IndividualsDbContext(DbContextOptions);
+        await context.Individuals.AddRangeAsync(entity, relatedIndividual);
+        await context.SaveChangesAsync();
+
+        var sut = new IndividualsRepository(context);
+        // When
+        var ex = await Record.ExceptionAsync(
+            async () => await sut.RemoveRelatedIndividual(entity.Id, relatedIndividual.Id)
+        );
+        // Then
+        Assert.IsType<DoesNotExistException>(ex);
     }
 }

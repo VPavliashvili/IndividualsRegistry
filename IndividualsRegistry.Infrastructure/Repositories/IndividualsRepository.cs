@@ -30,15 +30,6 @@ public class IndividualsRepository : IIndividualsRepository
         await _dbContext.Individuals.AddAsync(individualEntity);
     }
 
-    public Task AddRelatedIndividual(
-        int individualId,
-        IndividualEntity relatedIndividual,
-        RelationType relationType
-    )
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<IEnumerable<IndividualEntity>> GetIndividuals(
         IIndividualSpecification? filter = null
     )
@@ -64,9 +55,10 @@ public class IndividualsRepository : IIndividualsRepository
         return result;
     }
 
-    public Task<IndividualEntity?> GetIndividual(int individualId)
+    public async Task<IndividualEntity?> GetIndividual(int individualId)
     {
-        throw new NotImplementedException();
+        var result = await _dbContext.Individuals.SingleOrDefaultAsync(x => x.Id == individualId);
+        return result;
     }
 
     public async Task RemoveIndividual(int individualId)
@@ -77,9 +69,51 @@ public class IndividualsRepository : IIndividualsRepository
         _dbContext.Individuals.Remove(existing);
     }
 
-    public Task RemoveRelatedIndividual(int individualId, int relatedIndividualId)
+    public async Task AddRelatedIndividual(
+        int individualId,
+        IndividualEntity relatedIndividual,
+        RelationType relationType
+    )
     {
-        throw new NotImplementedException();
+        var target = await GetIndividual(individualId) ?? throw new DoesNotExistException();
+
+        var relatedExists = (await GetIndividual(relatedIndividual.Id)) is not null;
+        if (!relatedExists)
+        {
+            throw new DoesNotExistException();
+        }
+
+        if (target.Id == relatedIndividual.Id)
+        {
+            throw new InvalidOperationException();
+        }
+
+        if (target.RelatedIndividuals?.Any(x => x.Id == relatedIndividual.Id) == true)
+        {
+            throw new AlreadyExistsException();
+        }
+
+        var relation = new RelationEntity
+        {
+            IndividualId = individualId,
+            RelatedIndividualId = relatedIndividual.Id,
+            RelationType = relationType,
+        };
+
+        await _dbContext.Relations.AddAsync(relation);
+    }
+
+    public async Task RemoveRelatedIndividual(int individualId, int relatedIndividualId)
+    {
+        var target = await GetIndividual(individualId) ?? throw new DoesNotExistException();
+        var related = await GetIndividual(relatedIndividualId) ?? throw new DoesNotExistException();
+
+        var relation =
+            await _dbContext.Relations.FirstOrDefaultAsync(x =>
+                x.IndividualId == individualId && x.RelatedIndividualId == relatedIndividualId
+            ) ?? throw new DoesNotExistException();
+
+        _dbContext.Relations.Remove(relation);
     }
 
     public async Task SetPicture(int individualId, byte[] image)
