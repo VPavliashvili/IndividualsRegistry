@@ -16,6 +16,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
             { typeof(AlreadyExistsException), HandleAlreadyExist },
             { typeof(RelationDoesNotExistException), HandleRelationDoesNotExist },
             { typeof(RelatedIndividualAlreadyExists), HandleRelatedIndividualExist },
+            { typeof(PageNumberOverflowException), HandlePageNumberOverflow },
         };
     }
 
@@ -35,6 +36,22 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         }
 
         HandleUnknownException(context);
+    }
+
+    private static void HandlePageNumberOverflow(ExceptionContext context)
+    {
+        var ex = (PageNumberOverflowException)context.Exception;
+
+        var details = new ProblemDetails()
+        {
+            Title = "The specified resource was not found.",
+            Status = StatusCodes.Status404NotFound,
+            Detail =
+                $"More pages has been requested than it exists in this request scope, maxPage: {ex.MaxPage}, requestedPage: {ex.GivenPage}, overallFilteredRecords: {ex.FilteredCount}",
+        };
+
+        context.Result = new BadRequestObjectResult(details);
+        context.ExceptionHandled = true;
     }
 
     private static void HandleRelatedIndividualExist(ExceptionContext context)

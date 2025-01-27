@@ -633,6 +633,8 @@ public class IndividualsRepositoryTests
         await context.SaveChangesAsync();
 
         var spec = new Mock<IIndividualSpecification>();
+        spec.Setup(x => x.PageSize).Returns(123);
+        spec.Setup(x => x.PageNumber).Returns(1);
         spec.Setup(x => x.Criteria).Returns(x => x.Name == "nonexistent");
 
         var sut = new IndividualsRepository(context);

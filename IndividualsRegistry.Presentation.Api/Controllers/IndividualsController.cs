@@ -5,8 +5,10 @@ using IndividualsRegistry.Application.Individuals.Commands.CreateIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.EditIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.RemoveIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.SetPicture;
+using IndividualsRegistry.Application.Individuals.Queries.DetailedSearchIndividuals;
 using IndividualsRegistry.Application.Individuals.Queries.SimpleSearchIndividuals;
 using IndividualsRegistry.Application.Individuals.Queries.GetFullIndividualInfo;
+using IndividualsRegistry.Application.Individuals.Queries.RelatedIndividuals;
 using IndividualsRegistry.Application.Specifications;
 using IndividualsRegistry.Domain.Enums;
 using IndividualsRegistry.Presentation.Api.Filters;
@@ -123,8 +125,8 @@ public class IndividualsController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet()]
-    [ProducesResponseType<GetFullIndividualInfoResponse>(StatusCodes.Status200OK)]
+    [HttpGet("simple")]
+    [ProducesResponseType<SimpleSearchIndividualsResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SimpleFilteredIndividuals(
@@ -137,6 +139,54 @@ public class IndividualsController : ControllerBase
     {
         var filter = new SimpleSearchSpec(pageSize, pageNumber, name, surname, personalid);
         var cmd = new SimpleSearchIndividualsQuery(filter);
+        var result = await _mediator.Send(cmd);
+
+        return Ok(result);
+    }
+
+    [HttpGet("detailed")]
+    [ProducesResponseType<DetailedSearchIndividualsResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DetailedFilteredIndividuals(
+        string? name,
+        string? surname,
+        string? personalid,
+        DateOnly? birthDay,
+        Gender? gender,
+        int? cityId,
+        string? phone,
+        RelationType? relationType,
+        [Required] int pageSize,
+        [Required] int pageNumber
+    )
+    {
+        var cmd = new DetailedSearchIndividualsQuery()
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+
+            Name = name,
+            Surname = surname,
+            BirthDate = birthDay,
+            Gender = gender,
+            CityId = cityId,
+            PhoneNumber = phone,
+            RelationType = relationType,
+            PersonalId = personalid,
+        };
+        var result = await _mediator.Send(cmd);
+
+        return Ok(result);
+    }
+
+    [HttpGet("relations-stats")]
+    [ProducesResponseType<RelatedIndividualsResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> RelationsStats()
+    {
+        var cmd = new RelatedIndividualsQuery();
         var result = await _mediator.Send(cmd);
 
         return Ok(result);

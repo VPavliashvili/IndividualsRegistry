@@ -22,7 +22,6 @@ public class SimpleSearchSpec : IIndividualSpecification
         PageSize = pageSize;
         PageNumber = pageNumber;
 
-        Console.WriteLine(name);
         Criteria = (x) =>
             x.Name.Contains(name ?? string.Empty)
             || x.Surname.Contains(surname ?? string.Empty)

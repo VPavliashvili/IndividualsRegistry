@@ -54,10 +54,15 @@ public class IndividualsRepository : IIndividualsRepository
             intermediary = intermediary.Where(filter.Criteria);
         }
 
-        var result = await intermediary
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
+        var skipped = (pageNumber - 1) * pageSize;
+        var count = intermediary.Count();
+        if (skipped >= count && count > 0)
+        {
+            var maxpage = count / pageSize + count % pageSize != 0 ? 1 : 0;
+            throw new PageNumberOverflowException(maxpage, pageNumber, count);
+        }
+
+        var result = await intermediary.Skip(skipped).Take(pageSize).ToListAsync();
         return result;
     }
 
@@ -167,5 +172,27 @@ public class IndividualsRepository : IIndividualsRepository
             property.SetValue(existing, value);
             entry.Property(property.Name).IsModified = true;
         }
+    }
+
+    public async Task<IEnumerable<RelationEntity>> GetRelationshipsByType(RelationType? type)
+    {
+        if (type is null)
+            return [];
+
+        var result = await _dbContext.Relations.Where(x => x.RelationType == type).ToListAsync();
+        return result;
+    }
+
+    public async Task<Dictionary<string, int>> GroupRelationsByTypeAndIndividual(int individualId)
+    {
+        var existing =
+            await GetIndividual(individualId) ?? throw new DoesNotExistException(individualId);
+
+        var res = await _dbContext
+            .Relations.Where(x => x.IndividualId == individualId)
+            .GroupBy(x => x.RelationType)
+            .ToDictionaryAsync(g => g.Key.ToString(), g => g.Count());
+
+        return res;
     }
 }

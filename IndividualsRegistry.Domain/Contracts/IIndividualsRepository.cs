@@ -16,4 +16,7 @@ public interface IIndividualsRepository
 
     Task AddRelatedIndividual(int individualId, int relatedIndividualId, RelationType relationType);
     Task RemoveRelatedIndividual(int individualId, int relatedIndividualId);
+
+    Task<IEnumerable<RelationEntity>> GetRelationshipsByType(RelationType? type);
+    Task<Dictionary<string, int>> GroupRelationsByTypeAndIndividual(int individualId);
 }

@@ -1,6 +1,7 @@
 using AutoMapper;
 using IndividualsRegistry.Application.Individuals.Commands.CreateIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.EditIndividual;
+using IndividualsRegistry.Application.Individuals.Queries.DetailedSearchIndividuals;
 using IndividualsRegistry.Application.Individuals.Queries.SimpleSearchIndividuals;
 using IndividualsRegistry.Application.Individuals.Queries.GetFullIndividualInfo;
 using IndividualsRegistry.Application.Models;
@@ -22,6 +23,8 @@ public class MappingsProfile : Profile
         CreateMap<IndividualEntity, GetFullIndividualInfoResponse>()
             .IncludeBase<IndividualEntity, Individual>();
         CreateMap<IndividualEntity, SimpleSearchIndividualsResponse>()
+            .IncludeBase<IndividualEntity, Individual>();
+        CreateMap<IndividualEntity, DetailedSearchIndividualsResponse>()
             .IncludeBase<IndividualEntity, Individual>();
 
         CreateMap<CreateIndividualRequest, Individual>();
