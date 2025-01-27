@@ -36,13 +36,19 @@ public class IndividualsRepository : IIndividualsRepository
     {
         if (filter is null)
         {
-            return await _dbContext.Individuals.ToListAsync();
+            return await _dbContext
+                .Individuals.Include(x => x.PhoneNumbers)
+                .Include(x => x.RelatedIndividuals)
+                .ToListAsync();
         }
 
         var pageSize = filter.PageSize ?? int.MaxValue;
         var pageNumber = filter.PageNumber ?? 1;
 
-        var intermediary = _dbContext.Individuals.AsQueryable();
+        var intermediary = _dbContext
+            .Individuals.Include(x => x.PhoneNumbers)
+            .Include(x => x.RelatedIndividuals)
+            .AsQueryable();
         if (filter.Criteria is not null)
         {
             intermediary = intermediary.Where(filter.Criteria);
@@ -57,7 +63,10 @@ public class IndividualsRepository : IIndividualsRepository
 
     public async Task<IndividualEntity?> GetIndividual(int individualId)
     {
-        var result = await _dbContext.Individuals.SingleOrDefaultAsync(x => x.Id == individualId);
+        var result = await _dbContext
+            .Individuals.Include(x => x.PhoneNumbers)
+            .Include(x => x.RelatedIndividuals)
+            .SingleOrDefaultAsync(x => x.Id == individualId);
         return result;
     }
 

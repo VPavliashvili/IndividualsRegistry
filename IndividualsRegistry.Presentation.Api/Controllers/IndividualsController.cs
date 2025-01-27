@@ -4,10 +4,10 @@ using IndividualsRegistry.Application.Individuals.Commands.CreateIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.EditIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.RemoveIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.SetPicture;
+using IndividualsRegistry.Application.Individuals.Queries.GetFullIndividualInfo;
 using IndividualsRegistry.Domain.Enums;
 using IndividualsRegistry.Presentation.Api.Filters;
 using MediatR;
-using MediatR.Wrappers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IndividualsRegistry.Presentation.Api.Controllers;
@@ -111,10 +111,15 @@ public class IndividualsController : ControllerBase
     }
 
     [HttpGet("individual/{id}", Name = nameof(GetIndividual))]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType<GetFullIndividualInfoResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetIndividual(int id)
     {
-        throw new NotImplementedException();
+        var cmd = new GetFullIndividualInfoQuery(id);
+        var result = await _mediator.Send(cmd);
+        Console.WriteLine(result is null);
+
+        return Ok(result);
     }
 }

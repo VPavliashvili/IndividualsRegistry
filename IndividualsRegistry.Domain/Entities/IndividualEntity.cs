@@ -25,7 +25,7 @@ public class IndividualEntity
     public required DateOnly BirthDate { get; set; }
 
     public int? CityId { get; set; }
-    public ICollection<PhoneNumberEntity>? PhoneNumbers { get; set; }
+    public ICollection<PhoneNumberEntity> PhoneNumbers { get; set; } = [];
     public byte[]? Picture { get; set; }
-    public ICollection<IndividualEntity>? RelatedIndividuals { get; set; }
+    public ICollection<IndividualEntity> RelatedIndividuals { get; set; } = [];
 }

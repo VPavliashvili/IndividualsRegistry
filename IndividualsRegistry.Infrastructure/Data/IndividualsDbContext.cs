@@ -2,7 +2,6 @@ using System.Data;
 using IndividualsRegistry.Domain.Entities;
 using IndividualsRegistry.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace IndividualsRegistry.Infrastructure.Data;
 

@@ -1,6 +1,7 @@
 using AutoMapper;
 using IndividualsRegistry.Application.Individuals.Commands.CreateIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.EditIndividual;
+using IndividualsRegistry.Application.Individuals.Queries.GetFullIndividualInfo;
 using IndividualsRegistry.Application.Models;
 using IndividualsRegistry.Domain.Entities;
 
@@ -10,6 +11,16 @@ public class MappingsProfile : Profile
 {
     public MappingsProfile()
     {
+        CreateMap<PhoneNumberEntity, PhoneNumber>();
+        CreateMap<IndividualEntity, Individual>()
+            .ForMember(dest => dest.PhoneNumbers, opt => opt.MapFrom(src => src.PhoneNumbers))
+            .ForMember(
+                dest => dest.RelatedIndividuals,
+                opt => opt.MapFrom(src => src.RelatedIndividuals)
+            );
+        CreateMap<IndividualEntity, GetFullIndividualInfoResponse>()
+            .IncludeBase<IndividualEntity, Individual>();
+
         CreateMap<CreateIndividualRequest, Individual>();
         CreateMap<PhoneNumber, PhoneNumberEntity>()
             .ForMember(dest => dest.Individual, opt => opt.Ignore())
