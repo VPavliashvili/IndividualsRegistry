@@ -1,6 +1,6 @@
 using AutoMapper;
+using IndividualsRegistry.Application.Contracts;
 using IndividualsRegistry.Application.Specifications;
-using IndividualsRegistry.Domain.Contracts;
 using MediatR;
 
 namespace IndividualsRegistry.Application.Individuals.Queries.DetailedSearchIndividuals;
@@ -22,7 +22,7 @@ public sealed class DetailedSearchIndividualsHandler
         CancellationToken cancellationToken
     )
     {
-        var relations=await _repository.GetRelationshipsByType(request.RelationType);
+        var relations = await _repository.GetRelationshipsByType(request.RelationType);
 
         var filter = new DetailedSearchSpec(
             request.PageSize,

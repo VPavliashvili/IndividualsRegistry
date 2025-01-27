@@ -1,23 +1,13 @@
-using IndividualsRegistry.Domain.Contracts;
-using IndividualsRegistry.Domain.Entities;
-using IndividualsRegistry.Domain.Enums;
+using IndividualsRegistry.Application.Contracts;
 using IndividualsRegistry.Infrastructure.Data;
 using IndividualsRegistry.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Moq;
-using Xunit.Abstractions;
 
 namespace IndividualsRegistry.Infrastructure.Test.Repositories;
 
 public class UnitOfWorkTests
 {
-    private readonly ITestOutputHelper _output;
-
-    public UnitOfWorkTests(ITestOutputHelper output)
-    {
-        _output = output;
-    }
+    public UnitOfWorkTests() { }
 
     [Fact]
     public async Task Test_SaveChanges_Returns_Number_Of_Affected_Rows()

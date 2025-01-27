@@ -1,6 +1,6 @@
 using FluentValidation;
 using IndividualsRegistry.Application;
-using IndividualsRegistry.Domain.Contracts;
+using IndividualsRegistry.Application.Contracts;
 using IndividualsRegistry.Infrastructure.Data;
 using IndividualsRegistry.Infrastructure.Models.Configuration;
 using IndividualsRegistry.Infrastructure.Repositories;

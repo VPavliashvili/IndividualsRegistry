@@ -1,4 +1,5 @@
-using IndividualsRegistry.Domain.Contracts;
+using IndividualsRegistry.Application.Contracts;
+using IndividualsRegistry.Application.Individuals.Commands.EditIndividual;
 using IndividualsRegistry.Domain.Entities;
 using IndividualsRegistry.Domain.Enums;
 using IndividualsRegistry.Domain.Exceptions;
@@ -143,35 +144,42 @@ public class IndividualsRepository : IIndividualsRepository
         _dbContext.Entry(existing).Property(x => x.Picture).IsModified = true;
     }
 
-    public async Task UpdateIndividual(IndividualEntity updatedEntity)
+    public async Task UpdateIndividual(EditIndividualCommand command)
     {
-        ArgumentNullException.ThrowIfNull(updatedEntity);
+        ArgumentNullException.ThrowIfNull(command);
 
         var existing =
-            await _dbContext.Individuals.FirstOrDefaultAsync(x => x.Id == updatedEntity.Id)
-            ?? throw new DoesNotExistException(updatedEntity.Id);
+            await _dbContext
+                .Individuals.Include(x => x.PhoneNumbers)
+                .FirstOrDefaultAsync(x => x.Id == command.individualId)
+            ?? throw new DoesNotExistException(command.individualId);
 
-        var entry = _dbContext.Entry(existing);
-
-        var properties = typeof(IndividualEntity).GetProperties();
-
-        foreach (var property in properties)
-        {
-            if (
-                property.Name == nameof(IndividualEntity.Id)
-                || property.Name == nameof(IndividualEntity.RelatedIndividuals)
-                || property.Name == nameof(IndividualEntity.Picture)
-                || property.Name == nameof(IndividualEntity.PhoneNumbers)
-            )
-                continue;
-
-            var value = property.GetValue(updatedEntity);
-            if (value is null)
-                continue;
-
-            property.SetValue(existing, value);
-            entry.Property(property.Name).IsModified = true;
-        }
+        // _logger.LogWarning("{traki}",
+        // existing.PhoneNumbers.FirstOrDefault()!.Number);
+        _dbContext
+            .Entry(existing)
+            .CurrentValues.SetValues(
+                new IndividualEntity
+                {
+                    Id = command.individualId,
+                    Name = command.request.Name ?? existing.Name,
+                    Surname = command.request.Surname ?? existing.Surname,
+                    PersonalId = command.request.PersonalId ?? existing.PersonalId,
+                    Gender = command.request.Gender ?? existing.Gender,
+                    BirthDate = command.request.BirthDate ?? existing.BirthDate,
+                    PhoneNumbers =
+                    [
+                        .. command.request.PhoneNumbers.Select(x => new PhoneNumberEntity()
+                        {
+                            Individualid = command.individualId,
+                            Number = x.Number,
+                            Type = x.Type,
+                        }),
+                    ],
+                }
+            );
+        // _dbContext.Entry(existing).Property(x => x.PhoneNumbers).IsModified =
+        // true;
     }
 
     public async Task<IEnumerable<RelationEntity>> GetRelationshipsByType(RelationType? type)

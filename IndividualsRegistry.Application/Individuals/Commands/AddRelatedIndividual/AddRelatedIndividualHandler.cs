@@ -1,7 +1,6 @@
-using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using IndividualsRegistry.Application.Contracts;
 using IndividualsRegistry.Application.Validation;
-using IndividualsRegistry.Domain.Contracts;
 using MediatR;
 
 namespace IndividualsRegistry.Application.Individuals.Commands.AddRelatedIndividual;

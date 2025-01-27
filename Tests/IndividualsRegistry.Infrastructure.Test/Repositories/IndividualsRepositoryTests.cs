@@ -1,3 +1,4 @@
+using IndividualsRegistry.Application.Individuals.Commands.EditIndividual;
 using IndividualsRegistry.Domain.Entities;
 using IndividualsRegistry.Domain.Enums;
 using IndividualsRegistry.Domain.Exceptions;
@@ -140,15 +141,17 @@ public class IndividualsRepositoryTests
         await context.AddAsync(entity);
         await context.SaveChangesAsync();
 
-        var updated = new IndividualEntity
-        {
-            Id = 1,
-            Name = "newName",
-            Surname = "doe",
-            PersonalId = "12345678901",
-            Gender = Gender.Male,
-            BirthDate = DateOnly.Parse("08/19/2000"),
-        };
+        var updated = new EditIndividualCommand(
+            individualId: 1,
+            new EditIndividualRequest
+            {
+                Name = "newName",
+                Surname = "doe",
+                PersonalId = "12345678901",
+                Gender = Gender.Male,
+                BirthDate = DateOnly.Parse("08/19/2000"),
+            }
+        );
 
         var sut = new IndividualsRepository(context);
         // When
@@ -180,7 +183,19 @@ public class IndividualsRepositoryTests
 
         var sut = new IndividualsRepository(context.Object);
         // When
-        var ex = await Record.ExceptionAsync(async () => await sut.UpdateIndividual(entity));
+        var command = new EditIndividualCommand(
+            individualId: 2,
+            new EditIndividualRequest
+            {
+                Name = "newName",
+                Surname = "doe",
+                PersonalId = "12345678901",
+                Gender = Gender.Male,
+                BirthDate = DateOnly.Parse("08/19/2000"),
+            }
+        );
+
+        var ex = await Record.ExceptionAsync(async () => await sut.UpdateIndividual(command));
 
         // Then
         Assert.IsType<DoesNotExistException>(ex);
@@ -225,18 +240,20 @@ public class IndividualsRepositoryTests
         await context.Individuals.AddRangeAsync(entity1, entity2);
         await context.SaveChangesAsync();
 
-        var updated = new IndividualEntity
-        {
-            Id = 1,
-            Name = "peter",
-            Surname = "parker",
-            PersonalId = "12345678901",
-            Gender = Gender.Male,
-            BirthDate = DateOnly.Parse("08/19/2000"),
-        };
-
+        var updated = new EditIndividualCommand(
+            individualId: 1,
+            new EditIndividualRequest
+            {
+                Name = "peter",
+                Surname = "doe",
+                PersonalId = "12345678901",
+                Gender = Gender.Male,
+                BirthDate = DateOnly.Parse("08/19/2000"),
+            }
+        );
         var sut = new IndividualsRepository(context);
         // When
+
         await sut.UpdateIndividual(updated);
         await context.SaveChangesAsync();
 

@@ -1,4 +1,4 @@
-using IndividualsRegistry.Domain.Contracts;
+using IndividualsRegistry.Application.Contracts;
 using IndividualsRegistry.Infrastructure.Data;
 
 namespace IndividualsRegistry.Infrastructure.Repositories;

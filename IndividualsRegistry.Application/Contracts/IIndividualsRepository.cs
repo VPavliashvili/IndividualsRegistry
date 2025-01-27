@@ -1,13 +1,14 @@
+using IndividualsRegistry.Application.Individuals.Commands.EditIndividual;
 using IndividualsRegistry.Domain.Entities;
 using IndividualsRegistry.Domain.Enums;
 using IndividualsRegistry.Domain.Specifications;
 
-namespace IndividualsRegistry.Domain.Contracts;
+namespace IndividualsRegistry.Application.Contracts;
 
 public interface IIndividualsRepository
 {
     Task AddIndividual(IndividualEntity individualEntity);
-    Task UpdateIndividual(IndividualEntity updatedEntity);
+    Task UpdateIndividual(EditIndividualCommand command);
     Task SetPicture(int individualId, byte[] image);
     Task RemoveIndividual(int individualId);
 

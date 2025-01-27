@@ -1,7 +1,7 @@
 using AutoMapper;
 using FluentValidation;
+using IndividualsRegistry.Application.Contracts;
 using IndividualsRegistry.Application.Validation;
-using IndividualsRegistry.Domain.Contracts;
 using IndividualsRegistry.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;

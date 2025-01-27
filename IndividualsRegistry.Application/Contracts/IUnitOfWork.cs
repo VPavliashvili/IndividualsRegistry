@@ -1,4 +1,4 @@
-namespace IndividualsRegistry.Domain.Contracts;
+namespace IndividualsRegistry.Application.Contracts;
 
 public interface IUnitOfWork
 {

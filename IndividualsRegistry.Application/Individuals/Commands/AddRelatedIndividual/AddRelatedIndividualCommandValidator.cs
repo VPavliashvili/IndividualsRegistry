@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using IndividualsRegistry.Application.Validation;
 using Microsoft.AspNetCore.Http;

@@ -1,6 +1,6 @@
 using AutoMapper;
+using IndividualsRegistry.Application.Contracts;
 using IndividualsRegistry.Application.Specifications;
-using IndividualsRegistry.Domain.Contracts;
 using MediatR;
 
 namespace IndividualsRegistry.Application.Individuals.Queries.SimpleSearchIndividuals;

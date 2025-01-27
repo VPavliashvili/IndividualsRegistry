@@ -1,5 +1,4 @@
-using AutoMapper;
-using IndividualsRegistry.Domain.Contracts;
+using IndividualsRegistry.Application.Contracts;
 using MediatR;
 
 namespace IndividualsRegistry.Application.Individuals.Commands.SetPicture;
