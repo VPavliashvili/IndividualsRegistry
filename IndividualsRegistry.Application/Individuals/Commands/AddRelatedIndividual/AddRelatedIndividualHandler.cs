@@ -1,6 +1,6 @@
-using AutoMapper;
+using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using IndividualsRegistry.Domain.Contracts;
-using IndividualsRegistry.Domain.Entities;
 using MediatR;
 
 namespace IndividualsRegistry.Application.Individuals.Commands.AddRelatedIndividual;
@@ -8,10 +8,15 @@ namespace IndividualsRegistry.Application.Individuals.Commands.AddRelatedIndivid
 public sealed class AddRelatedIndividualHandler : IRequestHandler<AddRelatedIndividualCommand>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IValidator<AddRelatedIndividualCommand> _validator;
 
-    public AddRelatedIndividualHandler(IUnitOfWork unitOfWork)
+    public AddRelatedIndividualHandler(
+        IUnitOfWork unitOfWork,
+        IValidator<AddRelatedIndividualCommand> validator
+    )
     {
         _unitOfWork = unitOfWork;
+        _validator = validator;
     }
 
     public async Task Handle(
@@ -19,6 +24,8 @@ public sealed class AddRelatedIndividualHandler : IRequestHandler<AddRelatedIndi
         CancellationToken cancellationToken
     )
     {
+        await _validator.ValidateAndThrowAsync(request, cancellationToken);
+
         await _unitOfWork.IndividualsRepository.AddRelatedIndividual(
             request.individualId,
             request.relatedIndividualId,

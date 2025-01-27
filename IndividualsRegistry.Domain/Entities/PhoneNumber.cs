@@ -19,5 +19,5 @@ public class PhoneNumberEntity
     [ForeignKey("IndividualId")]
     public int Individualid { get; set; }
 
-    public virtual IndividualEntity Individual { get; set; }
+    public virtual IndividualEntity? Individual { get; set; }
 }
