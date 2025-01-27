@@ -4,7 +4,9 @@ using IndividualsRegistry.Domain.Contracts;
 using IndividualsRegistry.Infrastructure.Data;
 using IndividualsRegistry.Infrastructure.Models.Configuration;
 using IndividualsRegistry.Infrastructure.Repositories;
+using IndividualsRegistry.Presentation.Api.Middlewares;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +31,15 @@ builder.Services.AddScoped<IIndividualsRepository, IndividualsRepository>();
 var connStr = builder.Configuration.GetSection(nameof(ConnectionStrings)).Get<ConnectionStrings>();
 builder.Services.AddDbContext<IndividualsDbContext>(opt => opt.UseSqlServer(connStr!.MainDb));
 
+builder.Host.UseSerilog(
+    (context, services, configuration) =>
+        configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services)
+            .WriteTo.Console()
+            .Enrich.FromLogContext()
+);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -43,5 +54,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseErrorLogging();
 
 app.Run();
