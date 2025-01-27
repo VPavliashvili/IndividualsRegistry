@@ -1,21 +1,21 @@
+using Microsoft.AspNetCore.Localization;
+
 namespace IndividualsRegistry.Presentation.Api.Middlewares;
 
-public class ErrorLoggingMiddleware
+public class ErrorLoggingMiddleware : IMiddleware
 {
-    private readonly RequestDelegate _next;
     private readonly ILogger<ErrorLoggingMiddleware> _logger;
 
-    public ErrorLoggingMiddleware(RequestDelegate next, ILogger<ErrorLoggingMiddleware> logger)
+    public ErrorLoggingMiddleware(ILogger<ErrorLoggingMiddleware> logger)
     {
-        _next = next;
         _logger = logger;
     }
 
-    public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         try
         {
-            await _next(context);
+            await next(context);
         }
         catch (Exception ex)
         {

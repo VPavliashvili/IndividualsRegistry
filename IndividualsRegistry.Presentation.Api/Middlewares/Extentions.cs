@@ -6,5 +6,9 @@ public static class Extentions
     {
         return app.UseMiddleware<ErrorLoggingMiddleware>();
     }
-}
 
+    public static IApplicationBuilder UseCultureReaderMiddleware(this WebApplication app)
+    {
+        return app.UseMiddleware<CultureReaderMiddleware>();
+    }
+}

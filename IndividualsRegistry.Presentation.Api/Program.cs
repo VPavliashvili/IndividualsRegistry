@@ -4,6 +4,7 @@ using IndividualsRegistry.Domain.Contracts;
 using IndividualsRegistry.Infrastructure.Data;
 using IndividualsRegistry.Infrastructure.Models.Configuration;
 using IndividualsRegistry.Infrastructure.Repositories;
+using IndividualsRegistry.Presentation.Api.Configuration;
 using IndividualsRegistry.Presentation.Api.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -18,6 +19,8 @@ builder.Services.AddControllers();
 // https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.ConfigureOptions<CultureOptionsSetup>();
 
 var applicationAssembly = typeof(AssemblyReference).Assembly;
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(applicationAssembly));
@@ -50,6 +53,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCultureReaderMiddleware();
 
 app.UseAuthorization();
 
