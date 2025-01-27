@@ -6,7 +6,7 @@ namespace IndividualsRegistry.Domain.Contracts;
 
 public interface IIndividualsRepository
 {
-    Task AddIndividual(IndividualEntity individualEntity);
+    Task<int> AddIndividual(IndividualEntity individualEntity);
     Task UpdateIndividual(IndividualEntity updatedEntity);
     Task SetPicture(int individualId, byte[] image);
     Task RemoveIndividual(int individualId);

@@ -17,7 +17,7 @@ public class IndividualsRepository : IIndividualsRepository
         _dbContext = dbContext;
     }
 
-    public async Task AddIndividual(IndividualEntity individualEntity)
+    public async Task<int> AddIndividual(IndividualEntity individualEntity)
     {
         ArgumentNullException.ThrowIfNull(individualEntity);
 
@@ -27,7 +27,8 @@ public class IndividualsRepository : IIndividualsRepository
             throw new AlreadyExistsException();
         }
 
-        await _dbContext.Individuals.AddAsync(individualEntity);
+        var res = await _dbContext.Individuals.AddAsync(individualEntity);
+        return res.Entity.Id;
     }
 
     public async Task<IEnumerable<IndividualEntity>> GetIndividuals(
