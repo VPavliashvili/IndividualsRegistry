@@ -137,9 +137,7 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
                 {
                     b.HasOne("IndividualsRegistry.Domain.Entities.IndividualEntity", "Individual")
                         .WithMany("PhoneNumbers")
-                        .HasForeignKey("Individualid")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Individualid");
 
                     b.Navigation("Individual");
                 });

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IndividualsRegistry.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(IndividualsDbContext))]
-    [Migration("20250127021118_InitialMigration")]
+    [Migration("20250127150702_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -37,7 +37,7 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
                         .HasColumnType("Date");
 
                     b.Property<int?>("CityId")
-                        .HasColumnType("int");
+                        .HasColumnType("Int");
 
                     b.Property<string>("Gender")
                         .IsRequired()
@@ -140,9 +140,7 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
                 {
                     b.HasOne("IndividualsRegistry.Domain.Entities.IndividualEntity", "Individual")
                         .WithMany("PhoneNumbers")
-                        .HasForeignKey("Individualid")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Individualid");
 
                     b.Navigation("Individual");
                 });

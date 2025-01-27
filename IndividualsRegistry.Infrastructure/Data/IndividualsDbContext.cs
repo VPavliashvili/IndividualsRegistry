@@ -110,6 +110,12 @@ public class IndividualsDbContext : DbContext
                         j.Property(x => x.RelationType).IsRequired();
                     }
                 );
+
+            entity
+                .HasMany(e => e.PhoneNumbers)
+                .WithOne(e => e.Individual)
+                .HasForeignKey(e => e.Individualid)
+                .IsRequired(false);
         });
 
         modelBuilder.Entity<PhoneNumberEntity>(entity =>
@@ -129,11 +135,11 @@ public class IndividualsDbContext : DbContext
 
             entity.Property(x => x.Type).HasConversion<string>().HasMaxLength(50);
 
-            entity
-                .HasOne(x => x.Individual)
-                .WithMany(x => x.PhoneNumbers)
-                .HasForeignKey(x => x.Individualid)
-                .OnDelete(DeleteBehavior.Cascade);
+            // entity
+            //     .HasOne(x => x.Individual)
+            //     .WithMany(x => x.PhoneNumbers)
+            //     .HasForeignKey(x => x.Individualid)
+            //     .OnDelete(DeleteBehavior.Cascade);
         });
     }
 

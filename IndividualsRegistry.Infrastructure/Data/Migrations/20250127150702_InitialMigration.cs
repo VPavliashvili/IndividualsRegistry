@@ -22,7 +22,7 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
                     Gender = table.Column<string>(type: "NVarChar(10)", maxLength: 10, nullable: false),
                     PersonalId = table.Column<string>(type: "NVarChar(11)", fixedLength: true, maxLength: 11, nullable: false),
                     BirthDate = table.Column<DateOnly>(type: "Date", nullable: false),
-                    CityId = table.Column<int>(type: "int", nullable: true),
+                    CityId = table.Column<int>(type: "Int", nullable: true),
                     Picture = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
                 },
                 constraints: table =>
@@ -55,8 +55,7 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
                         name: "FK_PhoneNumbers_Individuals_Individualid",
                         column: x => x.Individualid,
                         principalTable: "Individuals",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(

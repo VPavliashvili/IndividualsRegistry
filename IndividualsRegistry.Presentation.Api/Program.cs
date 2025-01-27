@@ -31,6 +31,9 @@ builder.Services.AddLocalization(x => x.ResourcesPath = "Resources");
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IIndividualsRepository, IndividualsRepository>();
 
+builder.Services.AddTransient<ErrorLoggingMiddleware>();
+builder.Services.AddTransient<CultureReaderMiddleware>();
+
 var connStr = builder.Configuration.GetSection(nameof(ConnectionStrings)).Get<ConnectionStrings>();
 builder.Services.AddDbContext<IndividualsDbContext>(opt => opt.UseSqlServer(connStr!.MainDb));
 

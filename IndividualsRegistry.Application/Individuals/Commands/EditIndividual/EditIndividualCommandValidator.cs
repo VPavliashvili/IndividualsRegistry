@@ -12,31 +12,58 @@ public class EditIndividualCommandValidator : AbstractValidator<EditIndividualCo
         IStringLocalizer<EditIndividualCommandValidator> localizer
     )
     {
-        RuleFor(x => x.request.Name)
-            .NotNull()
-            .Length(2, 50)
-            .Must(isValidWord)
-            .WithMessage(localizer[LocalizationKeys.InvalidName])
-            .WithErrorCode(StatusCodes.Status400BadRequest.ToString());
-        RuleFor(x => x.request.Surname)
-            .NotNull()
-            .Length(2, 50)
-            .Must(isValidWord)
-            .WithMessage(localizer[LocalizationKeys.InvalidSurame])
-            .WithErrorCode(StatusCodes.Status400BadRequest.ToString());
-        RuleFor(x => x.request.PersonalId)
-            .NotNull()
-            .Length(11)
-            .WithMessage(localizer[LocalizationKeys.InvalidPersonalId])
-            .WithErrorCode(StatusCodes.Status400BadRequest.ToString());
-        RuleFor(x => x.request.BirthDate)
-            .Must(x => DateOnly.FromDateTime(DateTime.Now).Year - x?.Year >= 18)
-            .WithMessage(localizer[LocalizationKeys.InvalidBirthDate])
-            .WithErrorCode(StatusCodes.Status400BadRequest.ToString());
-        RuleFor(x => x.request.PhoneNumbers)
-            .ForEach(x => x.Must(y => y.Number.Length >= 4 && y.Number.Length <= 50))
-            .WithMessage(localizer[LocalizationKeys.InvalidPhoneNumber])
-            .WithErrorCode(StatusCodes.Status400BadRequest.ToString());
+        When(
+            x => x.request.Name is not null,
+            () =>
+            {
+                RuleFor(x => x.request.Name)
+                    .Length(2, 50)
+                    .Must(isValidWord)
+                    .WithMessage(localizer[LocalizationKeys.InvalidName])
+                    .WithErrorCode(StatusCodes.Status400BadRequest.ToString());
+            }
+        );
+        When(
+            x => x.request.Surname is not null,
+            () =>
+            {
+                RuleFor(x => x.request.Surname)
+                    .Length(2, 50)
+                    .Must(isValidWord)
+                    .WithMessage(localizer[LocalizationKeys.InvalidSurame])
+                    .WithErrorCode(StatusCodes.Status400BadRequest.ToString());
+            }
+        );
+        When(
+            x => x.request.PersonalId is not null,
+            () =>
+            {
+                RuleFor(x => x.request.PersonalId)
+                    .Length(11)
+                    .WithMessage(localizer[LocalizationKeys.InvalidPersonalId])
+                    .WithErrorCode(StatusCodes.Status400BadRequest.ToString());
+            }
+        );
+        When(
+            x => x.request.BirthDate is not null,
+            () =>
+            {
+                RuleFor(x => x.request.BirthDate)
+                    .Must(x => DateOnly.FromDateTime(DateTime.Now).Year - x?.Year >= 18)
+                    .WithMessage(localizer[LocalizationKeys.InvalidBirthDate])
+                    .WithErrorCode(StatusCodes.Status400BadRequest.ToString());
+            }
+        );
+        When(
+            x => x.request.BirthDate is not null,
+            () =>
+            {
+                RuleFor(x => x.request.PhoneNumbers)
+                    .ForEach(x => x.Must(y => y.Number.Length >= 4 && y.Number.Length <= 50))
+                    .WithMessage(localizer[LocalizationKeys.InvalidPhoneNumber])
+                    .WithErrorCode(StatusCodes.Status400BadRequest.ToString());
+            }
+        );
 
         static bool isValidWord(string input)
         {
@@ -53,4 +80,3 @@ public class EditIndividualCommandValidator : AbstractValidator<EditIndividualCo
         }
     }
 }
-
