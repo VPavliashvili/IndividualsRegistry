@@ -136,6 +136,27 @@ public class IndividualsRepository : IIndividualsRepository
         var existing =
             await _dbContext.Individuals.FirstOrDefaultAsync(x => x.Id == updatedEntity.Id)
             ?? throw new DoesNotExistException(updatedEntity.Id);
-        _dbContext.Entry(existing).CurrentValues.SetValues(updatedEntity);
+
+        var entry = _dbContext.Entry(existing);
+
+        var properties = typeof(IndividualEntity).GetProperties();
+
+        foreach (var property in properties)
+        {
+            if (
+                property.Name == nameof(IndividualEntity.Id)
+                || property.Name == nameof(IndividualEntity.RelatedIndividuals)
+                || property.Name == nameof(IndividualEntity.Picture)
+                || property.Name == nameof(IndividualEntity.PhoneNumbers)
+            )
+                continue;
+
+            var value = property.GetValue(updatedEntity);
+            if (value is null)
+                continue;
+
+            property.SetValue(existing, value);
+            entry.Property(property.Name).IsModified = true;
+        }
     }
 }

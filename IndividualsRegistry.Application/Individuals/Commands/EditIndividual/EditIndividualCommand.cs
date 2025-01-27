@@ -2,4 +2,5 @@ using MediatR;
 
 namespace IndividualsRegistry.Application.Individuals.Commands.EditIndividual;
 
-public sealed record EditIndividualCommand(EditIndividualRequest request) : IRequest<int>;
+public sealed record EditIndividualCommand(int individualId, EditIndividualRequest request)
+    : IRequest;

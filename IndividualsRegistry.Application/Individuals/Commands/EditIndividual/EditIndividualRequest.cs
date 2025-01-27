@@ -13,4 +13,3 @@ public class EditIndividualRequest
     public int? CityId { get; set; }
     public IEnumerable<PhoneNumber> PhoneNumbers { get; set; } = [];
 }
-

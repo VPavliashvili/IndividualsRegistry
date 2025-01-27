@@ -1,4 +1,5 @@
 using IndividualsRegistry.Application.Individuals.Commands.CreateIndividual;
+using IndividualsRegistry.Application.Individuals.Commands.EditIndividual;
 using IndividualsRegistry.Presentation.Api.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,21 @@ public class IndividualsController : ControllerBase
         var cmd = new CreateIndividualCommand(request);
         var res = await _mediator.Send(cmd);
         return CreatedAtRoute(nameof(GetIndividual), new { id = res }, res);
+    }
+
+    [HttpPatch("individual")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ModifyIndividualData(
+        int individualId,
+        [FromBody] EditIndividualRequest request
+    )
+    {
+        var cmd = new EditIndividualCommand(individualId, request);
+        await _mediator.Send(cmd);
+        return NoContent();
     }
 
     [HttpGet("individual/{id}", Name = nameof(GetIndividual))]

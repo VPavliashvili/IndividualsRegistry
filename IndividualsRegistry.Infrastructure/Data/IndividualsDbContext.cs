@@ -2,6 +2,7 @@ using System.Data;
 using IndividualsRegistry.Domain.Entities;
 using IndividualsRegistry.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace IndividualsRegistry.Infrastructure.Data;
 
@@ -93,7 +94,7 @@ public class IndividualsDbContext : DbContext
                 .IsRequired()
                 .HasColumnType(SqlDbType.Date.ToString())
                 .HasConversion<DateOnly>();
-
+            entity.Property(x => x.CityId).HasColumnType(SqlDbType.Int.ToString());
             entity
                 .HasMany(e => e.RelatedIndividuals)
                 .WithMany()

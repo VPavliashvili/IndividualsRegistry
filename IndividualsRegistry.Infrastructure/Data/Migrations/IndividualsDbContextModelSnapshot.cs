@@ -34,7 +34,7 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
                         .HasColumnType("Date");
 
                     b.Property<int?>("CityId")
-                        .HasColumnType("int");
+                        .HasColumnType("Int");
 
                     b.Property<string>("Gender")
                         .IsRequired()
