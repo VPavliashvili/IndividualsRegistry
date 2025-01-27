@@ -10,7 +10,6 @@ public class IndividualsDbContext : DbContext
     public virtual DbSet<IndividualEntity> Individuals { get; set; }
     public virtual DbSet<RelationEntity> Relations { get; set; }
     public virtual DbSet<PhoneNumberEntity> PhoneNumbers { get; set; }
-    public virtual DbSet<CityEntity> Cities { get; set; }
 
     public IndividualsDbContext(DbContextOptions<IndividualsDbContext> options)
         : base(options) { }
@@ -47,8 +46,18 @@ public class IndividualsDbContext : DbContext
                         "PersonalId LIKE "
                             + "'[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'"
                     );
+
+                    tb.HasCheckConstraint(
+                        "CK_Individual_MinimumAge",
+                        "DATEDIFF(YEAR, BirthDate, GETDATE()) >= 18"
+                    );
                 }
             );
+
+            entity
+                .HasIndex(e => e.PersonalId)
+                .IsUnique()
+                .HasDatabaseName("UX_Individual_PersonalId");
 
             entity.HasKey(x => x.Id);
             entity
@@ -57,18 +66,26 @@ public class IndividualsDbContext : DbContext
                 .HasColumnType(SqlDbType.Int.ToString())
                 .ValueGeneratedOnAdd();
 
-            entity.Property(x => x.Name).IsRequired().HasColumnType(SqlDbType.NVarChar.ToString());
+            entity
+                .Property(x => x.Name)
+                .IsRequired()
+                .HasColumnType(SqlDbType.NVarChar.ToString())
+                .HasMaxLength(10);
             entity
                 .Property(x => x.Surname)
                 .IsRequired()
+                .HasMaxLength(10)
                 .HasColumnType(SqlDbType.NVarChar.ToString());
             entity
                 .Property(x => x.Gender)
                 .IsRequired()
                 .HasColumnType(SqlDbType.NVarChar.ToString())
+                .HasMaxLength(10)
                 .HasConversion<string>();
             entity
                 .Property(x => x.PersonalId)
+                .IsFixedLength()
+                .HasMaxLength(11)
                 .IsRequired()
                 .HasColumnType(SqlDbType.NVarChar.ToString());
             entity
@@ -94,21 +111,6 @@ public class IndividualsDbContext : DbContext
                 );
         });
 
-        modelBuilder.Entity<CityEntity>(entity =>
-        {
-            entity.HasKey(x => x.Id);
-            entity.Property(x => x.Id).ValueGeneratedOnAdd();
-
-            entity
-                .HasMany(x => x.Individuals)
-                .WithOne(x => x.City)
-                .HasForeignKey(x => x.CityId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            entity.Property(x => x.Name).IsRequired();
-        });
-
         modelBuilder.Entity<PhoneNumberEntity>(entity =>
         {
             entity.ToTable(
@@ -124,7 +126,7 @@ public class IndividualsDbContext : DbContext
 
             entity.Property(x => x.Number).IsRequired().HasMaxLength(50);
 
-            entity.Property(x => x.Type).HasConversion<string>();
+            entity.Property(x => x.Type).HasConversion<string>().HasMaxLength(50);
 
             entity
                 .HasOne(x => x.Individual)

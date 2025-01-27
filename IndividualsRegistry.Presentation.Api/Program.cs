@@ -1,5 +1,7 @@
+using IndividualsRegistry.Domain.Contracts;
 using IndividualsRegistry.Infrastructure.Data;
 using IndividualsRegistry.Infrastructure.Models.Configuration;
+using IndividualsRegistry.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +14,13 @@ builder.Services.AddControllers();
 // https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var applicationAssembly = typeof(IndividualsRegistry.Application.AssemblyReference).Assembly;
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(applicationAssembly));
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IIndividualsRepository, IndividualsRepository>();
 
 var connStr = builder.Configuration.GetSection(nameof(ConnectionStrings)).Get<ConnectionStrings>();
 builder.Services.AddDbContext<IndividualsDbContext>(opt => opt.UseSqlServer(connStr!.MainDb));

@@ -25,6 +25,14 @@ public class IndividualsController : ControllerBase
     {
         var cmd = new CreateIndividualCommand(request);
         var res = await _mediator.Send(cmd);
-        return CreatedAtRoute("individual", new { id = res }, res);
+        return CreatedAtRoute(nameof(GetIndividual), new { id = res }, res);
+    }
+
+    [HttpGet("individual/{id}", Name = nameof(GetIndividual))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetIndividual(int id)
+    {
+        throw new NotImplementedException();
     }
 }

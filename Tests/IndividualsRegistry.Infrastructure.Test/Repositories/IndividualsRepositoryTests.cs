@@ -896,7 +896,7 @@ public class IndividualsRepositoryTests
         );
 
         // Then
-        Assert.IsType<AlreadyExistsException>(ex);
+        Assert.IsType<RelatedIndividualAlreadyExists>(ex);
     }
 
     [Fact]
@@ -1036,6 +1036,6 @@ public class IndividualsRepositoryTests
             async () => await sut.RemoveRelatedIndividual(entity.Id, relatedIndividual.Id)
         );
         // Then
-        Assert.IsType<DoesNotExistException>(ex);
+        Assert.IsType<RelationDoesNotExistException>(ex);
     }
 }

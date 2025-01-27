@@ -21,17 +21,10 @@ public class CreateIndividualHandler : IRequestHandler<CreateIndividualCommand, 
         CancellationToken cancellationToken
     )
     {
-        var entity = _mapper.Map<IndividualEntity>(request);
-        try
-        {
-            var res = await _unitOfWork.IndividualsRepository.AddIndividual(entity);
-            await _unitOfWork.SaveChanges();
-            return res;
-        }
-        catch
-        {
-            await _unitOfWork.RollbackChanges();
-            throw;
-        }
+        var entity = _mapper.Map<IndividualEntity>(request.request);
+
+        await _unitOfWork.IndividualsRepository.AddIndividual(entity);
+        await _unitOfWork.SaveChanges();
+        return entity.Id;
     }
 }

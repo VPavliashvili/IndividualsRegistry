@@ -6,34 +6,21 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace IndividualsRegistry.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Cities",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Cities", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Individuals",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "Int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "NVarChar", nullable: false),
-                    Surname = table.Column<string>(type: "NVarChar", nullable: false),
-                    Gender = table.Column<string>(type: "NVarChar", nullable: false),
-                    PersonalId = table.Column<string>(type: "NVarChar", nullable: false),
+                    Name = table.Column<string>(type: "NVarChar(10)", maxLength: 10, nullable: false),
+                    Surname = table.Column<string>(type: "NVarChar(10)", maxLength: 10, nullable: false),
+                    Gender = table.Column<string>(type: "NVarChar(10)", maxLength: 10, nullable: false),
+                    PersonalId = table.Column<string>(type: "NVarChar(11)", fixedLength: true, maxLength: 11, nullable: false),
                     BirthDate = table.Column<DateOnly>(type: "Date", nullable: false),
                     CityId = table.Column<int>(type: "int", nullable: true),
                     Picture = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
@@ -42,17 +29,12 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
                 {
                     table.PrimaryKey("PK_Individuals", x => x.Id);
                     table.CheckConstraint("CK_Gender", "Gender IN ('Male', 'Female')");
+                    table.CheckConstraint("CK_Individual_MinimumAge", "DATEDIFF(YEAR, BirthDate, GETDATE()) >= 18");
                     table.CheckConstraint("CK_Name_Characters", "Name NOT LIKE '%[^a-zA-Zა-ჰ]%'");
                     table.CheckConstraint("CK_Name_Length", "LEN(Name) >= 2 AND LEN(Name) <= 50");
                     table.CheckConstraint("CK_PersonalId", "PersonalId LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'");
                     table.CheckConstraint("CK_Surname_Characters", "Surname NOT LIKE '%[^a-zA-Zა-ჰ]%'");
                     table.CheckConstraint("CK_Surname_Length", "LEN(Surname) >= 2 AND LEN(Surname) <= 50");
-                    table.ForeignKey(
-                        name: "FK_Individuals_Cities_CityId",
-                        column: x => x.CityId,
-                        principalTable: "Cities",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -61,7 +43,7 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Number = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Individualid = table.Column<int>(type: "Int", nullable: false)
                 },
@@ -102,9 +84,10 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Individuals_CityId",
+                name: "UX_Individual_PersonalId",
                 table: "Individuals",
-                column: "CityId");
+                column: "PersonalId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_PhoneNumbers_Individualid",
@@ -128,9 +111,6 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Individuals");
-
-            migrationBuilder.DropTable(
-                name: "Cities");
         }
     }
 }

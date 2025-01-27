@@ -17,18 +17,17 @@ public class IndividualsRepository : IIndividualsRepository
         _dbContext = dbContext;
     }
 
-    public async Task<int> AddIndividual(IndividualEntity individualEntity)
+    public async Task AddIndividual(IndividualEntity individualEntity)
     {
         ArgumentNullException.ThrowIfNull(individualEntity);
 
         var alreadyExists = await _dbContext.Individuals.AnyAsync(x => x.Id == individualEntity.Id);
         if (alreadyExists)
         {
-            throw new AlreadyExistsException();
+            throw new AlreadyExistsException(individualEntity.Id);
         }
 
-        var res = await _dbContext.Individuals.AddAsync(individualEntity);
-        return res.Entity.Id;
+        await _dbContext.Individuals.AddAsync(individualEntity);
     }
 
     public async Task<IEnumerable<IndividualEntity>> GetIndividuals(
@@ -66,7 +65,7 @@ public class IndividualsRepository : IIndividualsRepository
     {
         var existing =
             await _dbContext.Individuals.FirstOrDefaultAsync(x => x.Id == individualId)
-            ?? throw new DoesNotExistException();
+            ?? throw new DoesNotExistException(individualId);
         _dbContext.Individuals.Remove(existing);
     }
 
@@ -76,12 +75,13 @@ public class IndividualsRepository : IIndividualsRepository
         RelationType relationType
     )
     {
-        var target = await GetIndividual(individualId) ?? throw new DoesNotExistException();
+        var target =
+            await GetIndividual(individualId) ?? throw new DoesNotExistException(individualId);
 
         var relatedExists = (await GetIndividual(relatedIndividual.Id)) is not null;
         if (!relatedExists)
         {
-            throw new DoesNotExistException();
+            throw new DoesNotExistException(relatedIndividual.Id);
         }
 
         if (target.Id == relatedIndividual.Id)
@@ -91,7 +91,7 @@ public class IndividualsRepository : IIndividualsRepository
 
         if (target.RelatedIndividuals?.Any(x => x.Id == relatedIndividual.Id) == true)
         {
-            throw new AlreadyExistsException();
+            throw new RelatedIndividualAlreadyExists(individualId, relatedIndividual.Id);
         }
 
         var relation = new RelationEntity
@@ -106,13 +106,16 @@ public class IndividualsRepository : IIndividualsRepository
 
     public async Task RemoveRelatedIndividual(int individualId, int relatedIndividualId)
     {
-        var target = await GetIndividual(individualId) ?? throw new DoesNotExistException();
-        var related = await GetIndividual(relatedIndividualId) ?? throw new DoesNotExistException();
+        var target =
+            await GetIndividual(individualId) ?? throw new DoesNotExistException(individualId);
+        var related =
+            await GetIndividual(relatedIndividualId)
+            ?? throw new DoesNotExistException(relatedIndividualId);
 
         var relation =
             await _dbContext.Relations.FirstOrDefaultAsync(x =>
                 x.IndividualId == individualId && x.RelatedIndividualId == relatedIndividualId
-            ) ?? throw new DoesNotExistException();
+            ) ?? throw new RelationDoesNotExistException(individualId, relatedIndividualId);
 
         _dbContext.Relations.Remove(relation);
     }
@@ -121,7 +124,7 @@ public class IndividualsRepository : IIndividualsRepository
     {
         var existing =
             await _dbContext.Individuals.FirstOrDefaultAsync(x => x.Id == individualId)
-            ?? throw new DoesNotExistException();
+            ?? throw new DoesNotExistException(individualId);
         existing.Picture = image;
         _dbContext.Entry(existing).Property(x => x.Picture).IsModified = true;
     }
@@ -132,7 +135,7 @@ public class IndividualsRepository : IIndividualsRepository
 
         var existing =
             await _dbContext.Individuals.FirstOrDefaultAsync(x => x.Id == updatedEntity.Id)
-            ?? throw new DoesNotExistException();
+            ?? throw new DoesNotExistException(updatedEntity.Id);
         _dbContext.Entry(existing).CurrentValues.SetValues(updatedEntity);
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IndividualsRegistry.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(IndividualsDbContext))]
-    [Migration("20250126201816_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250127021118_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,23 +24,6 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("IndividualsRegistry.Domain.Entities.CityEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Cities");
-                });
 
             modelBuilder.Entity("IndividualsRegistry.Domain.Entities.IndividualEntity", b =>
                 {
@@ -58,30 +41,39 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
 
                     b.Property<string>("Gender")
                         .IsRequired()
+                        .HasMaxLength(10)
                         .HasColumnType("NVarChar");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(10)
                         .HasColumnType("NVarChar");
 
                     b.Property<string>("PersonalId")
                         .IsRequired()
-                        .HasColumnType("NVarChar");
+                        .HasMaxLength(11)
+                        .HasColumnType("NVarChar")
+                        .IsFixedLength();
 
                     b.Property<byte[]>("Picture")
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Surname")
                         .IsRequired()
+                        .HasMaxLength(10)
                         .HasColumnType("NVarChar");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CityId");
+                    b.HasIndex("PersonalId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Individual_PersonalId");
 
                     b.ToTable("Individuals", null, t =>
                         {
                             t.HasCheckConstraint("CK_Gender", "Gender IN ('Male', 'Female')");
+
+                            t.HasCheckConstraint("CK_Individual_MinimumAge", "DATEDIFF(YEAR, BirthDate, GETDATE()) >= 18");
 
                             t.HasCheckConstraint("CK_Name_Characters", "Name NOT LIKE '%[^a-zA-Zა-ჰ]%'");
 
@@ -113,7 +105,8 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -143,16 +136,6 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
                     b.ToTable("Relations");
                 });
 
-            modelBuilder.Entity("IndividualsRegistry.Domain.Entities.IndividualEntity", b =>
-                {
-                    b.HasOne("IndividualsRegistry.Domain.Entities.CityEntity", "City")
-                        .WithMany("Individuals")
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("City");
-                });
-
             modelBuilder.Entity("IndividualsRegistry.Domain.Entities.PhoneNumberEntity", b =>
                 {
                     b.HasOne("IndividualsRegistry.Domain.Entities.IndividualEntity", "Individual")
@@ -177,11 +160,6 @@ namespace IndividualsRegistry.Infrastructure.Data.Migrations
                         .HasForeignKey("RelatedIndividualId")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("IndividualsRegistry.Domain.Entities.CityEntity", b =>
-                {
-                    b.Navigation("Individuals");
                 });
 
             modelBuilder.Entity("IndividualsRegistry.Domain.Entities.IndividualEntity", b =>

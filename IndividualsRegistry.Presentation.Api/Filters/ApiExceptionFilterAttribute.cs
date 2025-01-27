@@ -14,6 +14,8 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         {
             { typeof(DoesNotExistException), HandleDoesNotExist },
             { typeof(AlreadyExistsException), HandleAlreadyExist },
+            { typeof(RelationDoesNotExistException), HandleRelationDoesNotExist },
+            { typeof(RelatedIndividualAlreadyExists), HandleRelatedIndividualExist },
         };
     }
 
@@ -35,13 +37,44 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         HandleUnknownException(context);
     }
 
-    private static void HandleDoesNotExist(ExceptionContext context)
+    private static void HandleRelatedIndividualExist(ExceptionContext context)
     {
+        var ex = (RelatedIndividualAlreadyExists)context.Exception;
         var details = new ProblemDetails()
         {
             Title = "The specified resource was not found.",
             Status = StatusCodes.Status404NotFound,
-            Detail = context.Exception.Message,
+            Detail =
+                $"For individual {ex.IndividualId} related individual already exists with Id {ex.RelatedIndividualId} in database",
+        };
+
+        context.Result = new BadRequestObjectResult(details);
+        context.ExceptionHandled = true;
+    }
+
+    private static void HandleRelationDoesNotExist(ExceptionContext context)
+    {
+        var ex = (RelationDoesNotExistException)context.Exception;
+        var details = new ProblemDetails()
+        {
+            Title = "The specified resource was not found.",
+            Status = StatusCodes.Status404NotFound,
+            Detail =
+                $"For individual {ex.IndividualId} related individual does not exist with Id {ex.RelatedIndividualId} in database",
+        };
+
+        context.Result = new BadRequestObjectResult(details);
+        context.ExceptionHandled = true;
+    }
+
+    private static void HandleDoesNotExist(ExceptionContext context)
+    {
+        var ex = (DoesNotExistException)context.Exception;
+        var details = new ProblemDetails()
+        {
+            Title = "The specified resource was not found.",
+            Status = StatusCodes.Status404NotFound,
+            Detail = $"Individual does not exist with Id {ex.IndividualId} in database",
         };
 
         context.Result = new BadRequestObjectResult(details);
@@ -50,11 +83,12 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 
     private static void HandleAlreadyExist(ExceptionContext context)
     {
+        var ex = (AlreadyExistsException)context.Exception;
         var details = new ProblemDetails()
         {
             Title = "The resource already exist",
             Status = StatusCodes.Status400BadRequest,
-            Detail = context.Exception.Message,
+            Detail = $"Individual with Id {ex.IndividualId} already exists database",
         };
 
         context.Result = new NotFoundObjectResult(details);
