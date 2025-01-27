@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using IndividualsRegistry.Application.Individuals.Commands.RemoveRelatedIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.AddRelatedIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.CreateIndividual;
@@ -9,7 +8,6 @@ using IndividualsRegistry.Application.Individuals.Queries.DetailedSearchIndividu
 using IndividualsRegistry.Application.Individuals.Queries.SimpleSearchIndividuals;
 using IndividualsRegistry.Application.Individuals.Queries.GetFullIndividualInfo;
 using IndividualsRegistry.Application.Individuals.Queries.RelatedIndividuals;
-using IndividualsRegistry.Application.Specifications;
 using IndividualsRegistry.Domain.Enums;
 using IndividualsRegistry.Presentation.Api.Filters;
 using MediatR;
@@ -120,7 +118,6 @@ public class IndividualsController : ControllerBase
     {
         var cmd = new GetFullIndividualInfoQuery(id);
         var result = await _mediator.Send(cmd);
-        Console.WriteLine(result is null);
 
         return Ok(result);
     }
@@ -130,16 +127,10 @@ public class IndividualsController : ControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SimpleFilteredIndividuals(
-        string? name,
-        string? surname,
-        string? personalid,
-        [Required] int pageSize,
-        [Required] int pageNumber
+        [FromQuery] SimpleSearchIndividualsQuery query
     )
     {
-        var filter = new SimpleSearchSpec(pageSize, pageNumber, name, surname, personalid);
-        var cmd = new SimpleSearchIndividualsQuery(filter);
-        var result = await _mediator.Send(cmd);
+        var result = await _mediator.Send(query);
 
         return Ok(result);
     }
@@ -149,33 +140,10 @@ public class IndividualsController : ControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DetailedFilteredIndividuals(
-        string? name,
-        string? surname,
-        string? personalid,
-        DateOnly? birthDay,
-        Gender? gender,
-        int? cityId,
-        string? phone,
-        RelationType? relationType,
-        [Required] int pageSize,
-        [Required] int pageNumber
+        [FromQuery] DetailedSearchIndividualsQuery query
     )
     {
-        var cmd = new DetailedSearchIndividualsQuery()
-        {
-            PageNumber = pageNumber,
-            PageSize = pageSize,
-
-            Name = name,
-            Surname = surname,
-            BirthDate = birthDay,
-            Gender = gender,
-            CityId = cityId,
-            PhoneNumber = phone,
-            RelationType = relationType,
-            PersonalId = personalid,
-        };
-        var result = await _mediator.Send(cmd);
+        var result = await _mediator.Send(query);
 
         return Ok(result);
     }

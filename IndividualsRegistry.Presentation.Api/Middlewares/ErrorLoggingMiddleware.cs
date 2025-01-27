@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Localization;
-
 namespace IndividualsRegistry.Presentation.Api.Middlewares;
 
 public class ErrorLoggingMiddleware : IMiddleware

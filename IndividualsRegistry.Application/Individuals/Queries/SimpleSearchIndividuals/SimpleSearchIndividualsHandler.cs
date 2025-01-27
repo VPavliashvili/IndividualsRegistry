@@ -1,4 +1,5 @@
 using AutoMapper;
+using IndividualsRegistry.Application.Specifications;
 using IndividualsRegistry.Domain.Contracts;
 using MediatR;
 
@@ -21,7 +22,14 @@ public class SimpleSearchIndividualsHandler
         CancellationToken cancellationToken
     )
     {
-        var resp = await _repository.GetIndividuals(request.Filter);
+        var filter = new SimpleSearchSpec(
+            request.PageSize,
+            request.PageNumber,
+            request.Name,
+            request.Surname,
+            request.Personalid
+        );
+        var resp = await _repository.GetIndividuals(filter);
         var result = _mapper.Map<List<SimpleSearchIndividualsResponse>>(resp);
         return result;
     }
