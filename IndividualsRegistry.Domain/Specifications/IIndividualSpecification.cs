@@ -5,9 +5,8 @@ namespace IndividualsRegistry.Domain.Specifications;
 
 public interface IIndividualSpecification
 {
-    public int? PageSize { get; }
-    public int? PageNumber { get; }
+    public int PageSize { get; }
+    public int PageNumber { get; }
 
     Expression<Func<IndividualEntity, bool>> Criteria { get; }
 }
-

@@ -42,8 +42,8 @@ public class IndividualsRepository : IIndividualsRepository
                 .ToListAsync();
         }
 
-        var pageSize = filter.PageSize ?? int.MaxValue;
-        var pageNumber = filter.PageNumber ?? 1;
+        var pageSize = filter.PageSize;
+        var pageNumber = filter.PageNumber;
 
         var intermediary = _dbContext
             .Individuals.Include(x => x.PhoneNumbers)

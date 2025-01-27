@@ -1,10 +1,13 @@
+using System.ComponentModel.DataAnnotations;
 using IndividualsRegistry.Application.Individuals.Commands.RemoveRelatedIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.AddRelatedIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.CreateIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.EditIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.RemoveIndividual;
 using IndividualsRegistry.Application.Individuals.Commands.SetPicture;
+using IndividualsRegistry.Application.Individuals.Queries.SimpleSearchIndividuals;
 using IndividualsRegistry.Application.Individuals.Queries.GetFullIndividualInfo;
+using IndividualsRegistry.Application.Specifications;
 using IndividualsRegistry.Domain.Enums;
 using IndividualsRegistry.Presentation.Api.Filters;
 using MediatR;
@@ -14,7 +17,7 @@ namespace IndividualsRegistry.Presentation.Api.Controllers;
 
 [ApiExceptionFilter]
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class IndividualsController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -24,7 +27,7 @@ public class IndividualsController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpPost("individual")]
+    [HttpPost()]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
@@ -35,82 +38,79 @@ public class IndividualsController : ControllerBase
         return CreatedAtRoute(nameof(GetIndividual), new { id = res }, res);
     }
 
-    [HttpPatch("individual")]
+    [HttpPatch("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ModifyIndividualData(
-        int individualId,
+        [FromRoute] int id,
         [FromBody] EditIndividualRequest request
     )
     {
-        var cmd = new EditIndividualCommand(individualId, request);
+        var cmd = new EditIndividualCommand(id, request);
         await _mediator.Send(cmd);
         return NoContent();
     }
 
-    [HttpDelete("individual")]
+    [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> RemoveIndividual(int individualId)
+    public async Task<IActionResult> RemoveIndividual([FromRoute] int id)
     {
-        var cmd = new RemoveIndividualCommand(individualId);
+        var cmd = new RemoveIndividualCommand(id);
         await _mediator.Send(cmd);
         return NoContent();
     }
 
-    [HttpPatch("picture")]
+    [HttpPatch("{id}/picture")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SetPicture(int individualId, IFormFile image)
+    public async Task<IActionResult> SetPicture([FromRoute] int id, IFormFile image)
     {
         using var memoryStream = new MemoryStream();
         await image.CopyToAsync(memoryStream);
         byte[] pictureData = memoryStream.ToArray();
 
-        var cmd = new SetPictureCommand(individualId, pictureData);
+        var cmd = new SetPictureCommand(id, pictureData);
         await _mediator.Send(cmd);
 
         return NoContent();
     }
 
-    [HttpPost("individual/related")]
+    [HttpPost("{id}/related")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AddRelatedIndividual(
+        int id,
         int individualId,
-        int relatedIndividualId,
         RelationType relationType
     )
     {
-        var cmd = new AddRelatedIndividualCommand(individualId, relatedIndividualId, relationType);
+        var cmd = new AddRelatedIndividualCommand(id, individualId, relationType);
         await _mediator.Send(cmd);
 
         return NoContent();
     }
 
-    [HttpDelete("individual/related")]
+    [HttpDelete("{id}/related")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> RemoveRelatedIndividual(
-        int individualId,
-        int relatedIndividualId
-    )
+    public async Task<IActionResult> RemoveRelatedIndividual([FromRoute] int id, int individualId)
     {
-        var cmd = new RemoveRelatedIndividualCommand(individualId, relatedIndividualId);
+        var cmd = new RemoveRelatedIndividualCommand(id, individualId);
         await _mediator.Send(cmd);
 
         return NoContent();
     }
 
-    [HttpGet("individual/{id}", Name = nameof(GetIndividual))]
+    [HttpGet("{id}", Name = nameof(GetIndividual))]
     [ProducesResponseType<GetFullIndividualInfoResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
@@ -119,6 +119,25 @@ public class IndividualsController : ControllerBase
         var cmd = new GetFullIndividualInfoQuery(id);
         var result = await _mediator.Send(cmd);
         Console.WriteLine(result is null);
+
+        return Ok(result);
+    }
+
+    [HttpGet()]
+    [ProducesResponseType<GetFullIndividualInfoResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> SimpleFilteredIndividuals(
+        string? name,
+        string? surname,
+        string? personalid,
+        [Required] int pageSize,
+        [Required] int pageNumber
+    )
+    {
+        var filter = new SimpleSearchSpec(pageSize, pageNumber, name, surname, personalid);
+        var cmd = new SimpleSearchIndividualsQuery(filter);
+        var result = await _mediator.Send(cmd);
 
         return Ok(result);
     }

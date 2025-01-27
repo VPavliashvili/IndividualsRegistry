@@ -1,12 +1,14 @@
+using IndividualsRegistry.Application.Specifications;
 using MediatR;
 
 namespace IndividualsRegistry.Application.Individuals.Queries.SimpleSearchIndividuals;
 
-public class SimpleSearchIndividualsQuery : IRequest<SimpleSearchIndividualsResponse>
+public class SimpleSearchIndividualsQuery : IRequest<List<SimpleSearchIndividualsResponse>>
 {
-    public string? Name { get; set; }
-    public string? Surname { get; set; }
-    public string? PersonalId;
-    public int? PageNumber { get; set; }
-    public int? PageSize { get; set; }
+    public SimpleSearchSpec Filter { get; }
+
+    public SimpleSearchIndividualsQuery(SimpleSearchSpec spec)
+    {
+        Filter = spec;
+    }
 }

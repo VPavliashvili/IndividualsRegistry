@@ -549,6 +549,8 @@ public class IndividualsRepositoryTests
         await context.SaveChangesAsync();
 
         var spec = new Mock<IIndividualSpecification>();
+        spec.Setup(x => x.PageNumber).Returns(1);
+        spec.Setup(x => x.PageSize).Returns(100);
         spec.Setup(x => x.Criteria).Returns(x => x.Name == "john");
 
         var sut = new IndividualsRepository(context);
@@ -592,6 +594,8 @@ public class IndividualsRepositoryTests
         await context.SaveChangesAsync();
 
         var spec = new Mock<IIndividualSpecification>();
+        spec.Setup(x => x.PageNumber).Returns(1);
+        spec.Setup(x => x.PageSize).Returns(100);
         spec.Setup(x => x.Criteria)
             .Returns(x => x.Name == "john" && x.Surname == "doe" && x.PersonalId == "12345678901");
 
