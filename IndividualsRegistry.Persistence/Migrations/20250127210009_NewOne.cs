@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace IndividualsRegistry.Infrastructure.Data.Migrations
+namespace IndividualsRegistry.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class NewOne : Migration

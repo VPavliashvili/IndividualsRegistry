@@ -1,6 +1,6 @@
 using IndividualsRegistry.Application.Contracts;
-using IndividualsRegistry.Infrastructure.Data;
 using IndividualsRegistry.Infrastructure.Repositories;
+using IndividualsRegistry.Persistence;
 using Moq;
 
 namespace IndividualsRegistry.Infrastructure.Test.Repositories;

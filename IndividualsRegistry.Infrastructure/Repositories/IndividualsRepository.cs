@@ -4,7 +4,7 @@ using IndividualsRegistry.Domain.Entities;
 using IndividualsRegistry.Domain.Enums;
 using IndividualsRegistry.Domain.Exceptions;
 using IndividualsRegistry.Domain.Specifications;
-using IndividualsRegistry.Infrastructure.Data;
+using IndividualsRegistry.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace IndividualsRegistry.Infrastructure.Repositories;

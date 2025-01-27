@@ -3,7 +3,7 @@ using IndividualsRegistry.Domain.Entities;
 using IndividualsRegistry.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
-namespace IndividualsRegistry.Infrastructure.Data;
+namespace IndividualsRegistry.Persistence;
 
 public class IndividualsDbContext : DbContext
 {

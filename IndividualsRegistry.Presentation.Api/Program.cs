@@ -1,9 +1,9 @@
 using FluentValidation;
 using IndividualsRegistry.Application;
 using IndividualsRegistry.Application.Contracts;
-using IndividualsRegistry.Infrastructure.Data;
 using IndividualsRegistry.Infrastructure.Models.Configuration;
 using IndividualsRegistry.Infrastructure.Repositories;
+using IndividualsRegistry.Persistence;
 using IndividualsRegistry.Presentation.Api.Configuration;
 using IndividualsRegistry.Presentation.Api.Middlewares;
 using Microsoft.EntityFrameworkCore;

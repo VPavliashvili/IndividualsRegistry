@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\IndividualsRegistry.Domain\IndividualsRegistry.Domain.csproj" />
     <ProjectReference Include="..\..\IndividualsRegistry.Infrastructure\IndividualsRegistry.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\IndividualsRegistry.Persistence\IndividualsRegistry.Persistence.csproj" />
   </ItemGroup>
 
 </Project>

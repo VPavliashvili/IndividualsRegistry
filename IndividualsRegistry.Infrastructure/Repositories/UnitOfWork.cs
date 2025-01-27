@@ -1,5 +1,5 @@
 using IndividualsRegistry.Application.Contracts;
-using IndividualsRegistry.Infrastructure.Data;
+using IndividualsRegistry.Persistence;
 
 namespace IndividualsRegistry.Infrastructure.Repositories;
 
