@@ -14,10 +14,6 @@ public interface IIndividualsRepository
     Task<IEnumerable<IndividualEntity>> GetIndividuals(IIndividualSpecification? filter = null);
     Task<IndividualEntity?> GetIndividual(int individualId);
 
-    Task AddRelatedIndividual(
-        int individualId,
-        IndividualEntity relatedIndividual,
-        RelationType relationType
-    );
+    Task AddRelatedIndividual(int individualId, int relatedIndividualId, RelationType relationType);
     Task RemoveRelatedIndividual(int individualId, int relatedIndividualId);
 }

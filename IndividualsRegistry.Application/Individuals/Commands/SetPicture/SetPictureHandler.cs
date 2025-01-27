@@ -1,12 +1,21 @@
+using AutoMapper;
+using IndividualsRegistry.Domain.Contracts;
 using MediatR;
 
 namespace IndividualsRegistry.Application.Individuals.Commands.SetPicture;
 
-public sealed class SetPictureHandler : IRequestHandler<SetPictureCommand, int>
+public sealed class SetPictureHandler : IRequestHandler<SetPictureCommand>
 {
-    public Task<int> Handle(SetPictureCommand request, CancellationToken cancellationToken)
+    private readonly IUnitOfWork _unitOfWork;
+
+    public SetPictureHandler(IUnitOfWork unitOfWork)
     {
-        throw new NotImplementedException();
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task Handle(SetPictureCommand request, CancellationToken cancellationToken)
+    {
+        await _unitOfWork.IndividualsRepository.SetPicture(request.individualId, request.image);
+        await _unitOfWork.SaveChanges();
     }
 }
-

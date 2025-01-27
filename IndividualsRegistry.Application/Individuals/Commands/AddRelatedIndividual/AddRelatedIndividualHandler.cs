@@ -1,15 +1,29 @@
+using AutoMapper;
+using IndividualsRegistry.Domain.Contracts;
+using IndividualsRegistry.Domain.Entities;
 using MediatR;
 
 namespace IndividualsRegistry.Application.Individuals.Commands.AddRelatedIndividual;
 
-public sealed class AddRelatedIndividualHandler : IRequestHandler<AddRelatedIndividualCommand, int>
+public sealed class AddRelatedIndividualHandler : IRequestHandler<AddRelatedIndividualCommand>
 {
-    public Task<int> Handle(
+    private readonly IUnitOfWork _unitOfWork;
+
+    public AddRelatedIndividualHandler(IUnitOfWork unitOfWork)
+    {
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task Handle(
         AddRelatedIndividualCommand request,
         CancellationToken cancellationToken
     )
     {
-        throw new NotImplementedException();
+        await _unitOfWork.IndividualsRepository.AddRelatedIndividual(
+            request.individualId,
+            request.relatedIndividualId,
+            request.relationType
+        );
+        await _unitOfWork.SaveChanges();
     }
 }
-

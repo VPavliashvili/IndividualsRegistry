@@ -753,7 +753,7 @@ public class IndividualsRepositoryTests
 
         var sut = new IndividualsRepository(context);
         // When
-        await sut.AddRelatedIndividual(1, relatedEntity, RelationType.Colleague);
+        await sut.AddRelatedIndividual(1, relatedEntity.Id, RelationType.Colleague);
         await context.SaveChangesAsync();
 
         // Then
@@ -787,7 +787,7 @@ public class IndividualsRepositoryTests
         // When
         var ex = await Record.ExceptionAsync(
             async () =>
-                await sut.AddRelatedIndividual(123, relatedIndividual, RelationType.Colleague)
+                await sut.AddRelatedIndividual(123, relatedIndividual.Id, RelationType.Colleague)
         );
 
         // Then
@@ -825,7 +825,7 @@ public class IndividualsRepositoryTests
         // When
         var ex = await Record.ExceptionAsync(
             async () =>
-                await sut.AddRelatedIndividual(1, nonExistentRelated, RelationType.Colleague)
+                await sut.AddRelatedIndividual(1, nonExistentRelated.Id, RelationType.Colleague)
         );
 
         // Then
@@ -853,7 +853,7 @@ public class IndividualsRepositoryTests
         var sut = new IndividualsRepository(context);
         // When
         var ex = await Record.ExceptionAsync(
-            async () => await sut.AddRelatedIndividual(1, individual, RelationType.Colleague)
+            async () => await sut.AddRelatedIndividual(1, individual.Id, RelationType.Colleague)
         );
 
         // Then
@@ -888,11 +888,12 @@ public class IndividualsRepositoryTests
         await context.SaveChangesAsync();
 
         var sut = new IndividualsRepository(context);
-        await sut.AddRelatedIndividual(1, relatedIndividual, RelationType.Relative);
+        await sut.AddRelatedIndividual(1, relatedIndividual.Id, RelationType.Relative);
         await context.SaveChangesAsync();
         // When
         var ex = await Record.ExceptionAsync(
-            async () => await sut.AddRelatedIndividual(1, relatedIndividual, RelationType.Colleague)
+            async () =>
+                await sut.AddRelatedIndividual(1, relatedIndividual.Id, RelationType.Colleague)
         );
 
         // Then

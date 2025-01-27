@@ -102,7 +102,8 @@ public class IndividualsDbContext : DbContext
                     j =>
                         j.HasOne<IndividualEntity>()
                             .WithMany()
-                            .HasForeignKey(x => x.RelatedIndividualId),
+                            .HasForeignKey(x => x.RelatedIndividualId)
+                            .OnDelete(DeleteBehavior.ClientCascade),
                     j => j.HasOne<IndividualEntity>().WithMany().HasForeignKey(x => x.IndividualId),
                     j =>
                     {

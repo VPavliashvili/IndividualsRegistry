@@ -71,33 +71,33 @@ public class IndividualsRepository : IIndividualsRepository
 
     public async Task AddRelatedIndividual(
         int individualId,
-        IndividualEntity relatedIndividual,
+        int relatedIndividualId,
         RelationType relationType
     )
     {
         var target =
             await GetIndividual(individualId) ?? throw new DoesNotExistException(individualId);
 
-        var relatedExists = (await GetIndividual(relatedIndividual.Id)) is not null;
+        var relatedExists = (await GetIndividual(relatedIndividualId)) is not null;
         if (!relatedExists)
         {
-            throw new DoesNotExistException(relatedIndividual.Id);
+            throw new DoesNotExistException(relatedIndividualId);
         }
 
-        if (target.Id == relatedIndividual.Id)
+        if (target.Id == relatedIndividualId)
         {
             throw new InvalidOperationException();
         }
 
-        if (target.RelatedIndividuals?.Any(x => x.Id == relatedIndividual.Id) == true)
+        if (target.RelatedIndividuals?.Any(x => x.Id == relatedIndividualId) == true)
         {
-            throw new RelatedIndividualAlreadyExists(individualId, relatedIndividual.Id);
+            throw new RelatedIndividualAlreadyExists(individualId, relatedIndividualId);
         }
 
         var relation = new RelationEntity
         {
             IndividualId = individualId,
-            RelatedIndividualId = relatedIndividual.Id,
+            RelatedIndividualId = relatedIndividualId,
             RelationType = relationType,
         };
 

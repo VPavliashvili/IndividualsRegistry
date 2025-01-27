@@ -1,12 +1,20 @@
+using IndividualsRegistry.Domain.Contracts;
 using MediatR;
 
 namespace IndividualsRegistry.Application.Individuals.Commands.RemoveIndividual;
 
-public sealed class RemoveIndividualHandler : IRequestHandler<RemoveIndividualCommand, int>
+public sealed class RemoveIndividualHandler : IRequestHandler<RemoveIndividualCommand>
 {
-    public Task<int> Handle(RemoveIndividualCommand request, CancellationToken cancellationToken)
+    private readonly IUnitOfWork _unitOfWork;
+
+    public RemoveIndividualHandler(IUnitOfWork unitOfWork)
     {
-        throw new NotImplementedException();
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task Handle(RemoveIndividualCommand request, CancellationToken cancellationToken)
+    {
+        await _unitOfWork.IndividualsRepository.RemoveIndividual(request.individualId);
+        await _unitOfWork.SaveChanges();
     }
 }
-
