@@ -1,6 +1,5 @@
 using FluentValidation;
 using IndividualsRegistry.Application;
-using IndividualsRegistry.Application.Individuals.Commands.AddRelatedIndividual;
 using IndividualsRegistry.Domain.Contracts;
 using IndividualsRegistry.Infrastructure.Data;
 using IndividualsRegistry.Infrastructure.Models.Configuration;
@@ -23,8 +22,6 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(applicationA
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddValidatorsFromAssemblyContaining<ApplicationMarker>();
 builder.Services.AddLocalization(x => x.ResourcesPath = "Resources");
-
-builder.Services.AddScoped<IValidator<AddRelatedIndividualCommand>, AddRelatedIndividualCommandValidator>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IIndividualsRepository, IndividualsRepository>();

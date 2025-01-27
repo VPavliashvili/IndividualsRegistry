@@ -1,3 +1,4 @@
+using IndividualsRegistry.Application.Models.Exceptions;
 using IndividualsRegistry.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -17,6 +18,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
             { typeof(RelationDoesNotExistException), HandleRelationDoesNotExist },
             { typeof(RelatedIndividualAlreadyExists), HandleRelatedIndividualExist },
             { typeof(PageNumberOverflowException), HandlePageNumberOverflow },
+            { typeof(UserInputValidation), HandleUserInputValidation },
         };
     }
 
@@ -36,6 +38,21 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         }
 
         HandleUnknownException(context);
+    }
+
+    private static void HandleUserInputValidation(ExceptionContext context)
+    {
+        var ex = (UserInputValidation)context.Exception;
+
+        var details = new ProblemDetails()
+        {
+            Title = "The specified resource was not found.",
+            Status = StatusCodes.Status400BadRequest,
+            Detail = ex.Message,
+        };
+
+        context.Result = new BadRequestObjectResult(details);
+        context.ExceptionHandled = true;
     }
 
     private static void HandlePageNumberOverflow(ExceptionContext context)

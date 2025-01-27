@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using IndividualsRegistry.Application.Validation;
 using IndividualsRegistry.Domain.Contracts;
 using MediatR;
 
@@ -24,7 +25,7 @@ public sealed class AddRelatedIndividualHandler : IRequestHandler<AddRelatedIndi
         CancellationToken cancellationToken
     )
     {
-        await _validator.ValidateAndThrowAsync(request, cancellationToken);
+        await _validator.ValidateAndCustomException(request);
 
         await _unitOfWork.IndividualsRepository.AddRelatedIndividual(
             request.individualId,
